@@ -72,51 +72,38 @@ sivep-multi-tenant/
 
 ### 1. Crear la base de datos
 
-El archivo `api/.env` está configurado para:
+Las credenciales reales se configuran en `api/.env` (no se versiona). En este
+equipo la configuración actual es:
 
-- host `127.0.0.1:3306`
-- base de datos `sivep_v2`
-- usuario `sivep`
-- contraseña `sivep_local`
+- host `localhost:3306`
+- base de datos `sivep-multi-tennant`
+- usuario `fredy`
+- contraseña propia del usuario MySQL `fredy`
+- socket `/opt/lampp/var/mysql/mysql.sock`
 
-> Se usa `sivep_v2` para no mezclar la base nueva con la base `sivep` antigua
-> que ya existía en el equipo. Si prefieres otro nombre, cámbialo en `api/.env`
-> y en los comandos siguientes.
+> La base nueva se llama `sivep-multi-tennant` para no mezclarla con la base
+> `sivep` antigua que ya existía en el equipo. Si prefieres otro nombre,
+> cámbialo en `api/.env` y en los comandos siguientes.
 
-#### MySQL del sistema
+Crea la base y las pruebas con una cuenta con privilegios (por ejemplo el root
+de MySQL):
 
 ```bash
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS sivep_v2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+/opt/lampp/bin/mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`sivep-multi-tennant\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS sivep_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'sivep'@'localhost' IDENTIFIED BY 'sivep_local';
-GRANT ALL PRIVILEGES ON sivep_v2.* TO 'sivep'@'localhost';
-GRANT ALL PRIVILEGES ON sivep_test.* TO 'sivep'@'localhost';
+GRANT ALL PRIVILEGES ON \`sivep-multi-tennant\`.* TO 'fredy'@'localhost';
+GRANT ALL PRIVILEGES ON sivep_test.* TO 'fredy'@'localhost';
 FLUSH PRIVILEGES;"
 ```
 
-#### XAMPP / LAMPP
+> **Importante en XAMPP/LAMPP:** con `DB_HOST=localhost` PHP busca el socket del
+> sistema (`/var/run/mysqld/mysqld.sock`), pero XAMPP usa
+> `/opt/lampp/var/mysql/mysql.sock`. Por eso `api/.env` incluye
+> `DB_SOCKET=/opt/lampp/var/mysql/mysql.sock`. La alternativa es usar
+> `DB_HOST=127.0.0.1`.
 
-En XAMPP el cliente está en `/opt/lampp/bin/mysql` y el `root` local suele no
-tener contraseña:
-
-```bash
-/opt/lampp/bin/mysql -u root -e "CREATE DATABASE IF NOT EXISTS sivep_v2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE IF NOT EXISTS sivep_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'sivep'@'localhost' IDENTIFIED BY 'sivep_local';
-CREATE USER IF NOT EXISTS 'sivep'@'127.0.0.1' IDENTIFIED BY 'sivep_local';
-GRANT ALL PRIVILEGES ON sivep_v2.* TO 'sivep'@'localhost';
-GRANT ALL PRIVILEGES ON sivep_v2.* TO 'sivep'@'127.0.0.1';
-GRANT ALL PRIVILEGES ON sivep_test.* TO 'sivep'@'localhost';
-GRANT ALL PRIVILEGES ON sivep_test.* TO 'sivep'@'127.0.0.1';
-FLUSH PRIVILEGES;"
-```
-
-> **Importante en XAMPP:** usa `DB_HOST=127.0.0.1`, no `localhost`. Con
-> `localhost` PHP busca el socket del sistema (`/var/run/mysqld/mysqld.sock`),
-> pero XAMPP usa `/opt/lampp/var/mysql/mysql.sock`, lo que produce el error
-> `SQLSTATE[HY000] [2002] No such file or directory`.
-
-`sivep_test` se usa para las pruebas automatizadas (`php artisan test`).
+`sivep_test` se usa para las pruebas automatizadas (`php artisan test`). Sus
+credenciales se configuran en `api/phpunit.xml`.
 
 > Si tu MySQL usa otro puerto o credenciales, ajusta `DB_PORT`, `DB_USERNAME` y
 > `DB_PASSWORD` en `api/.env`.
