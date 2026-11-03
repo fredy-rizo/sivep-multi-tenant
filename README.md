@@ -1,585 +1,160 @@
-# SIVEP - Sistema de Inventario, Ventas y Producción
+# SIVEP 2.0
 
-## Granja El Cairo — Universidad Nacional de Colombia, Sede Orinoquía
+Sistema de inventario, ventas, producción y gestión ganadera multi-organización
+para la Granja El Cairo (Universidad Nacional de Colombia — Sede Orinoquía).
 
-Sistema completo de gestión para la Granja El Cairo con arquitectura cliente-servidor.
-Incluye inventario, ventas, clientes, reportes, analítica avanzada y un módulo de
-**monetización SaaS** (planes, suscripciones, licencias on-premise y servicios de
-valor agregado) con aislamiento **multi-tenant** por organización.
+Esta es una **reescritura completa** del sistema anterior:
 
----
+- **Backend:** PHP + Laravel (API REST).
+- **Frontend:** Vue 3 + Vite.
+- **Multi-tenant:** aislamiento por organización.
+- **Suscripciones:** planes, features, pagos manuales y gating.
+- **Módulo nuevo:** información ganadera multiespecie con ID único por animal,
+  pesos, vacunas, reproducción y resúmenes mensuales.
 
-## Tabla de contenido
-
-- [Stack tecnológico](#stack-tecnológico)
-- [Paleta de colores UNAL](#paleta-de-colores-unal)
-- [Instalación y configuración](#instalación-y-configuración)
-- [Multi-tenant (aislamiento por organización)](#multi-tenant-aislamiento-por-organización)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Funcionalidades](#funcionalidades)
-- [Roles y permisos](#roles-y-permisos)
-- [API](#api)
-- [Monetización](#monetización)
-- [Cookies y consentimiento](#cookies-y-consentimiento)
-- [Variables de entorno](#variables-de-entorno)
-- [Scripts disponibles](#scripts-disponibles)
-- [UI/UX](#uiux)
-- [Seguridad, privacidad y cumplimiento](#seguridad-privacidad-y-cumplimiento)
-- [Licencia](#licencia)
+El código anterior (Node/Fastify + React) se conserva en `legacy/` únicamente
+como referencia funcional.
 
 ---
 
-## Stack tecnológico
+## Estado actual
 
-**Backend**
-
-- Node.js con JavaScript (ES Modules)
-- Fastify como framework HTTP
-- MySQL (`mysql2` con promesas)
-- JWT para autenticación (`@fastify/jwt`)
-- `bcryptjs` para hash de contraseñas
-- `@fastify/multipart` para subida de archivos (comprobantes)
-- `@fastify/helmet` y `@fastify/rate-limit` para seguridad
-- `@fastify/cookie` para la cookie técnica de consentimiento
-- Cloudinary para el alojamiento de imágenes
-- `cors`, `dotenv` y `Joi` para CORS, configuración y validaciones
-
-**Frontend**
-
-- React 18 con JavaScript
-- Vite como bundler
-- Tailwind CSS para estilos
-- React Router DOM v6 para enrutado
-- Axios para peticiones HTTP
-- Recharts para gráficos
-- Lucide React para iconos
+| Componente | Estado |
+| --- | --- |
+| Repositorio y control de versiones | ✅ Inicializado |
+| Preservación del legado | ✅ En `legacy/` |
+| Documentación de arquitectura | ✅ `docs/ARQUITECTURA.md` |
+| Modelo ganadero | ✅ `docs/MODELO-GANADERO.md` |
+| Frontend Vue 3 | 🟡 Estructura, auth, layout y vistas base |
+| Backend Laravel | ⏳ Pendiente de PHP/Composer |
+| Base de datos | ⏳ Pendiente |
+| Tests | ⏳ Pendiente |
 
 ---
 
-## Paleta de colores UNAL
-
-| Rol        | Color       | Hex       |
-| ---------- | ----------- | --------- |
-| Primario   | Granate     | `#8B1E3F` |
-| Acento     | Verde oliva | `#5B8C4E` |
-| Secundario | Gris oscuro | `#4A4A4A` |
-| Fondo      | Gris claro  | `#F8F9FA` |
-
-Tipografía: **Inter**.
-
----
-
-## Instalación y configuración
-
-### Prerrequisitos
-
-- Node.js 18+
-- MySQL 8.0+
-- `pnpm` (recomendado) o `npm`
-
-### 1. Base de datos MySQL
-
-```sql
-CREATE DATABASE sivep CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-### 2. Backend
-
-```bash
-cd backend
-cp .env.example .env
-# Editar .env con tus credenciales (MySQL, JWT_SECRET, etc.)
-pnpm install
-pnpm run db:migrate        # Crea el esquema base
-pnpm run db:seed           # Datos de ejemplo (organización y catálogo)
-pnpm run db:add-billing    # Tablas de monetización (idempotente)
-pnpm run db:add-multitenant # Aislamiento multi-tenant (idempotente)
-pnpm run db:add-notes      # Notas de venta (idempotente)
-pnpm run db:add-pickup     # Códigos de reclamo (idempotente)
-pnpm run db:add-payments   # Columnas de pago/eCollect (idempotente)
-pnpm run db:add-ti         # Tipo de documento TI (idempotente)
-pnpm run db:add-external-sales # Ventas externas desde PDF (idempotente)
-pnpm run db:add-cash-claims    # Solicitudes de compra en efectivo (idempotente)
-pnpm run dev
-```
-
-El servidor corre en `http://localhost:3000`.
-
-> En bases de datos ya existentes los scripts `db:add-*` son migraciones
-> incrementales e idempotentes: se pueden repetir sin dañar datos.
-
-### 3. Frontend
-
-```bash
-cd frontend
-cp .env.example .env
-pnpm install
-pnpm run dev
-```
-
-La aplicación corre en `http://localhost:5173`.
-
----
-
-## Multi-tenant (aislamiento por organización)
-
-Cada organización (granja/institución) es un **tenant** independiente. El aislamiento
-se aplica a nivel de datos:
-
-- Tabla `organizations` y columna `users.organization_id`.
-- Las tablas de negocio (`products`, `customers`, `sales`, `inventory_movements`)
-  incluyen `organization_id` y **todas las consultas filtran por la organización**
-  del usuario autenticado.
-- El identificador de organización viaja firmado en el JWT y, para tokens antiguos,
-  el middleware lo resuelve desde la base de datos.
-- El documento de un cliente es único **dentro de cada organización**, no globalmente.
-- El formulario público resuelve la organización por defecto configurable.
-
-El resultado: una organización **nunca** puede ver ni modificar datos de otra, ni
-siquiera conociendo los identificadores.
-
----
-
-## Estructura del proyecto
+## Estructura
 
 ```
-SIVEP/
-├── backend/
-│   ├── src/
-│   │   ├── config/         # Configuración de base de datos
-│   │   ├── controllers/    # Controladores de cada entidad
-│   │   ├── database/       # Migraciones, esquemas y seeds
-│   │   ├── middleware/     # Auth, roles, planes (gating) y organización
-│   │   ├── routes/         # Rutas de la API
-│   │   ├── utils/          # Utilidades y helpers
-│   │   ├── validators/     # Esquemas de validación Joi
-│   │   └── server.js       # Punto de entrada
-│   ├── uploads/            # Archivos subidos (comprobantes)
-│   ├── package.json
-│   └── .env.example
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # Componentes reutilizables (feature gates, banner)
-│   │   ├── context/        # Contextos (Auth, Plan)
-│   │   ├── layouts/        # Layouts (AppLayout)
-│   │   ├── pages/          # Páginas de la aplicación (incl. legales)
-│   │   ├── utils/          # Utilidades (api, formatters, toast)
-│   │   ├── App.jsx         # Routing
-│   │   ├── main.jsx        # Punto de entrada
-│   │   └── index.css       # Estilos globales + Tailwind
-│   ├── public/
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   └── .env.example
+sivep-multi-tenant/
+├── api/                  # Laravel (se crea cuando estén PHP y Composer)
+├── web/                  # Vue 3 + Vite (inicializado)
+├── legacy/
+│   ├── backend/          # Backend Node/Fastify anterior
+│   └── frontend/         # Frontend React anterior
+├── docs/
+│   ├── ARQUITECTURA.md
+│   └── MODELO-GANADERO.md
+├── .editorconfig
+├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Funcionalidades
+## Requisitos
 
-### Páginas públicas (sin autenticación)
-
-- **Landing Page (`/`)**: presentación de la granja, catálogo y proceso de compra.
-- **Registro de compra en línea (`/formulario-compra`)**: el cliente ya pagó
-  en la página de pago virtual de la UNAL y sube el PDF de eCollect. SIVEP lee
-  los datos, registra cliente y venta externa, descuenta el stock cuando
-  identifica el producto por nombre o por precio, y entrega el código de
-  reclamo.
-- **Solicitud de compra en efectivo (`/formulario-compra/efectivo`)**: el
-  cliente pagó en la caja de la Universidad y registra el código del recibo,
-  sus datos, los productos comprados y una foto/PDF del recibo. La solicitud
-  **no descuenta stock**: un administrador valida el recibo y solo al aprobar se
-  crea la venta, se descuenta el inventario y la entrega queda marcada como
-  realizada. Incluye una pestaña para consultar el estado con el código de
-  solicitud y el documento del comprador.
-- **Planes (`/planes`)**: catálogo público de planes y servicios.
-- **Legales**: `privacidad`, `terminos`, `reembolsos`, `cookies`.
-
-### Páginas privadas (requieren autenticación)
-
-- **Login (`/login`)**: autenticación con JWT.
-- **Dashboard (`/dashboard`)**: KPIs, gráficos de ventas, últimas ventas y alertas.
-- **Ventas (`/ventas`, `/ventas/nueva`)**: listado con filtros y creación con
-  cálculo automático de totales e impacto en stock.
-- **Efectivo (`/efectivo`)**: validación manual de compras pagadas en caja.
-  Permite ver el recibo, comparar lo declarado con el total del catálogo y
-  aprobar (crea la venta y descuenta stock de forma atómica) o rechazar con
-  motivo. Si al aprobar no alcanza el stock, toda la operación se revierte.
-- **Productos (`/productos`)**: CRUD con alertas visuales de stock bajo.
-- **Clientes (`/clientes`)**: listado, comprobantes y aprobación/rechazo.
-- **Inventario (`/inventario`)**: stock actual, movimientos e historial.
-- **Reportes (`/reportes`)**: ventas, inventario y clientes con exportación CSV, más
-  analítica avanzada (pronóstico, afinidad, velocidad/aceleración y EOQ).
-- **Mi plan (`/mi-plan`)**: plan actual, límites, uso y solicitudes de servicio.
-- **Usuarios (`/usuarios`)**: solo `super_admin`, CRUD de administradores.
-- **Monetización (`/admin/monetizacion`)**: solo `super_admin`, panel de organizaciones,
-  suscripciones, pagos, licencias, servicios y planes.
+- PHP 8.3+ con `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`, `gd`, `intl`.
+- Composer 2.
+- MySQL 8 (o SQLite para desarrollo).
+- Node 20+ y pnpm.
+- Redis (recomendado para colas, caché y Reverb).
 
 ---
 
-## Roles y permisos
+## Puesta en marcha
 
-| Funcionalidad                                                     | `super_admin` | `admin_granja` |
-| ----------------------------------------------------------------- | :-----------: | :------------: |
-| Dashboard / Ventas / Productos / Clientes / Inventario / Reportes |      ✅       |       ✅       |
-| Gestionar usuarios                                                |      ✅       |       ❌       |
-| Monetización (`/admin/monetizacion`, `/api/admin/*`)              |      ✅       |       ❌       |
-| Ver plan y solicitar servicios (`/mi-plan`)                       |      ✅       |       ✅       |
+### 1. Backend Laravel
 
-El **gating por plan** es independiente del rol: ciertas funciones de analítica se
-habilitan según el plan contratado (ver [Monetización](#monetización)).
-
----
-
-## API
-
-### Autenticación
-
-- `POST /api/auth/login` — iniciar sesión
-- `GET /api/auth/me` — usuario actual
-
-### Usuarios (solo `super_admin`)
-
-- `GET /api/users` — listar
-- `POST /api/users` — crear
-- `PUT|PATCH /api/users/:id` — actualizar
-- `DELETE /api/users/:id` — desactivar (soft delete)
-
-### Productos
-
-- `GET /api/products` · `GET /api/products/categories` · `GET /api/products/:id`
-- `POST /api/products` · `PUT|PATCH /api/products/:id` · `DELETE /api/products/:id`
-
-### Clientes
-
-- `GET /api/customers` · `GET /api/customers/pending-proof-count` · `GET /api/customers/:id`
-- `POST /api/customers` · `PUT|PATCH /api/customers/:id`
-- `PATCH /api/customers/:id/review-proof` — aprobar/rechazar comprobante
-
-### Ventas
-
-- `GET /api/sales` · `GET /api/sales/:id` · `POST /api/sales`
-
-### Inventario
-
-- `GET /api/inventory` · `GET /api/inventory/movements` · `POST /api/inventory/movement`
-
-### Reportes
-
-- `GET /api/reports/sales` · `GET /api/reports/inventory` · `GET /api/reports/customers`
-- `GET /api/reports/sales/export` · `GET /api/reports/inventory/export` · `GET /api/reports/customers/export` (CSV)
-
-### Analítica (álgebra lineal y cálculo diferencial)
-
-- `GET /api/reports/forecast` — pronóstico de ventas (mínimos cuadrados)
-- `GET /api/reports/affinity` — afinidad entre productos (similitud coseno)
-- `GET /api/reports/rate` — velocidad y aceleración (1ª y 2ª derivada)
-- `GET /api/reports/eoq` — cantidad económica de pedido / inventario óptimo (EOQ)
-
-### Facturación y planes
-
-- `GET /api/billing/plans` — catálogo público (sin auth)
-- `GET /api/billing/me` — plan, features, límites, uso, suscripción y órdenes
-- `GET /api/billing/invoices` — historial de facturas/pagos de la organización
-- `POST /api/billing/request` — solicitar cambio/ascenso de plan (pago manual, cupón opcional)
-- `POST /api/billing/service-request` — solicitar servicio de valor agregado
-- `POST /api/billing/subscription/cancel` — cancelar al final del periodo
-- `POST /api/billing/subscription/resume` — deshacer la cancelación programada
-
-### Cookies / consentimiento
-
-- `GET /api/cookies/consent` — lee la decisión guardada (`unknown` si no hay)
-- `POST /api/cookies/consent` — guarda la decisión (`accepted`, `categories`, etc.)
-
-### Compras en efectivo (validación manual)
-
-- `GET /api/cash-claims` — listado con filtros por estado, texto y fechas
-- `GET /api/cash-claims/:id` — detalle con ítems, stock actual y recibo
-- `POST /api/cash-claims/:id/approve` — crea la venta, descuenta stock de forma
-  atómica, usa el código de la solicitud como código de la compra y deja la
-  entrega marcada como `entregado`
-  (`409 INSUFFICIENT_STOCK` si no alcanza; se revierte todo)
-- `POST /api/cash-claims/:id/reject` — guarda el motivo; no toca el inventario
-
-### Público (sin autenticación)
-
-- `GET /api/public/products` — catálogo con stock en tiempo real y
-  `catalogVersion`
-- `POST /api/public/leads` — registra una compra **en línea** a partir del PDF de
-  eCollect. Identifica el producto por nombre o por precio y descuenta el stock;
-  si hay ambigüedad deja una nota. El efectivo no entra por aquí.
-- `POST /api/public/cash-claims` — registra una solicitud de compra en efectivo
-  (multipart: datos, ítems y foto/PDF del recibo). No descuenta stock.
-- `GET /api/public/cash-claims/:code?document=...` — consulta el estado de una
-  solicitud; exige el documento del comprador.
-
----
-
-## Monetización
-
-### Planes y características
-
-El catálogo define tres planes (**Básico**, **Profesional** e **Institucional**), sus
-precios y un conjunto de **features** con `code` (p. ej. `analytics.algebra`,
-`analytics.calculus`). Los límites (número de usuarios, etc.) son configurables por
-plan; los precios del catálogo se administran desde el panel y no se documentan aquí.
-
-### Gating por plan
-
-Las rutas de analítica están protegidas por feature:
-
-- `analytics.algebra` (`/api/reports/forecast`, `/api/reports/affinity`)
-- `analytics.calculus` (`/api/reports/rate`, `/api/reports/eoq`)
-
-Requieren plan **Profesional** o superior. Si el plan no incluye la función, el
-backend responde **`402 Payment Required`** y el frontend muestra la función bloqueada
-con enlace a `/planes`.
-
-### Flujo de pago (manual)
-
-1. El cliente solicita un plan: `POST /api/billing/request`.
-2. El `super_admin` confirma el pago: `POST /api/admin/payments/:id/confirm`,
-   lo que cancela la suscripción anterior y activa la nueva.
-3. Si se rechaza: `POST /api/admin/payments/:id/reject`.
-
-> La **pasarela de pago** (Wompi/PayU/PSE) está prevista como fase posterior; hoy el
-> cobro es manual.
-
-### Ciclo de vida, pruebas y cupones
-
-- **Ciclo de vida:** un servicio (`services/subscriptionLifecycle.js`) expira las
-  suscripciones vencidas y aplica las cancelaciones programadas. Se ejecuta al
-  arrancar el servidor, cada 6 horas y a demanda desde el panel
-  (`POST /api/admin/subscriptions/run-lifecycle`).
-- **Cancelación de autoservicio:** el cliente puede cancelar al final del periodo
-  y **reactivar** antes de que se haga efectiva (`/billing/subscription/cancel|resume`).
-- **Pruebas (trials):** cada plan define `trial_days`; una suscripción creada en
-  estado `trialing` consume ese periodo y expira si no se convierte.
-- **Cupones:** descuento porcentual o fijo, opcionalmente restringido a un plan,
-  con tope de canjes y vigencia. Se aplican en la solicitud y se registran sus
-  canjes en `coupon_redemptions`.
-- **Planes a medida:** el super_admin puede crear planes con código, precios,
-  prueba y features seleccionadas (`POST /api/admin/plans`).
-
-### Licencias on-premise
-
-Las licencias se firman con `LICENSE_SECRET` (o `JWT_SECRET` si no se define) y se
-verifican con `POST /api/admin/licenses/verify`; pueden revocarse con
-`POST /api/admin/licenses/:id/revoke`.
-
-### Administración (solo `super_admin`, prefijo `/api/admin`)
-
-- `GET /api/admin/overview` — KPIs (organizaciones, suscripciones, pagos, licencias)
-- `GET /api/admin/metrics` — métricas SaaS (MRR, ARR, ARPU, churn, trials, ingresos)
-- `GET|POST /api/admin/organizations` · `PUT /api/admin/organizations/:id`
-- `GET|POST /api/admin/subscriptions` · `PATCH /api/admin/subscriptions/:id` ·
-  `POST /api/admin/subscriptions/run-lifecycle` (expira/cancela vencidas)
-- `GET /api/admin/payments` · `POST /api/admin/payments/:id/confirm|reject`
-- `GET|POST /api/admin/coupons` · `PATCH /api/admin/coupons/:id` · `DELETE /api/admin/coupons/:id`
-- `GET|POST /api/admin/licenses` · `POST /api/admin/licenses/verify` ·
-  `POST /api/admin/licenses/:id/revoke`
-- `GET /api/admin/service-orders` · `PATCH /api/admin/service-orders/:id`
-- `GET /api/admin/plans` · `POST /api/admin/plans` (plan a medida) ·
-  `PATCH /api/admin/plans/:code` · `GET /api/admin/features`
-
----
-
-## Cookies y consentimiento
-
-El aviso de cookies se muestra en la primera visita (o mientras no exista una
-decisión guardada) y ofrece **tres opciones**:
-
-- **Aceptar** — activa todas las categorías opcionales.
-- **Rechazar** — desactiva todas las categorías opcionales.
-- **Personalizar** — permite elegir categoría por categoría.
-
-Categorías:
-
-| Categoría                | Descripción                    | Estado          |
-| ------------------------ | ------------------------------ | --------------- |
-| Estrictamente necesarias | Sesión y preferencia de tema   | Siempre activas |
-| Preferencias             | Ajustes de uso (tema, filtros) | Opcional        |
-| Analítica                | Métricas agregadas de uso      | Opcional        |
-| Publicidad               | Contenido promocional          | Opcional        |
-
-Detalles de implementación:
-
-- La decisión se guarda en el backend mediante una **cookie técnica `cookie_consent`**
-  (`httpOnly`, `SameSite=Lax`, 1 año) vía `POST /api/cookies/consent`; el estado se
-  consulta con `GET /api/cookies/consent`.
-- El modo puede ser `accepted`, `rejected` o `custom` (personalizado).
-- En el cliente se mantiene además una marca en `localStorage` como respaldo si el
-  backend no está disponible.
-- Al rechazar una categoría se eliminan las cookies opcionales asociadas
-  (lista ampliable en el propio controlador).
-- La política completa está en `/cookies`.
-
----
-
-## Variables de entorno
-
-### Backend (`backend/.env`)
-
-```env
-PORT=3000
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=
-MYSQL_DATABASE=sivep
-MYSQL_PORT=3306
-MYSQL_SSL=false
-JWT_SECRET=
-JWT_EXPIRES_IN=24h
-LICENSE_SECRET=
-UPLOAD_PATH=./uploads
-CORS_ORIGIN=
-FORCE_HTTPS=false
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-# TTL (ms) de la caché del catálogo público. Se invalida en cada cambio de
-# stock; este valor es solo la red de seguridad.
-PUBLIC_PRODUCTS_CACHE_MS=15000
-```
-
-Genera secretos largos y aleatorios, por ejemplo:
+Cuando PHP y Composer estén instalados:
 
 ```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+composer create-project laravel/laravel api
+cd api
+composer require laravel/sanctum spatie/laravel-permission
+composer require --dev pestphp/pest laravel/pint
+php artisan install:api
+cp .env.example .env
+php artisan key:generate
 ```
 
-### Frontend (`frontend/.env`)
-
-```env
-VITE_API_URL=http://localhost:3000/api
-VITE_ECOLLECT_PURCHASE_URL=https://pagovirtual.unal.edu.co/index.php
-# Opcional: si se omite, se deriva de VITE_API_URL (http→ws) con ruta /ws.
-VITE_WS_URL=
-```
-
-> El stock se actualiza por WebSocket en `GET /ws`. Los clientes públicos
-> escuchan la organización pública; los usuarios con sesión envían su JWT en
-> `?token=` y escuchan su propia organización. El servidor ignora cualquier
-> `organizationId` enviado por el cliente.
-
-> Los archivos `.env` están en `.gitignore` y **nunca** deben subirse al repositorio.
-> Usa los `.env.example` como plantilla.
-
----
-
-## Scripts disponibles
-
-### Backend
+Configura la base de datos en `api/.env` y ejecuta:
 
 ```bash
-pnpm start                    # Producción
-pnpm run dev                  # Desarrollo con watch
-pnpm test                     # Pruebas unitarias (node:test)
-pnpm run lint                 # Linter (ESLint)
-pnpm run db:migrate           # Migraciones base
-pnpm run db:seed              # Seed inicial
-pnpm run db:add-billing       # Tablas de monetización (idempotente)
-pnpm run db:add-multitenant   # Aislamiento multi-tenant (idempotente)
-pnpm run db:add-notes         # Notas de venta (idempotente)
-pnpm run db:add-pickup        # Códigos de reclamo (idempotente)
-pnpm run db:add-payments      # Columnas de pago/eCollect (idempotente)
-pnpm run db:add-ti            # Tipo de documento TI (idempotente)
-pnpm run db:add-external-sales # Ventas externas desde PDF (idempotente)
-pnpm run db:add-cash-claims    # Solicitudes de compra en efectivo (idempotente)
+php artisan migrate --seed
+php artisan serve   # http://localhost:8000
 ```
 
-### Frontend
+> El detalle de la arquitectura, modelos, middleware y fases está en
+> [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).
+
+### 2. Frontend Vue
 
 ```bash
-pnpm run dev       # Desarrollo
-pnpm run build     # Build de producción
-pnpm run preview   # Preview del build
-pnpm run lint      # Linter (ESLint)
+cd web
+cp .env.example .env
+pnpm install
+pnpm dev   # http://localhost:5173
 ```
 
----
+Vite hace proxy de `/api`, `/sanctum` y `/storage` hacia `http://localhost:8000`.
 
-## UI/UX
-
-- Diseño minimalista, limpio y profesional.
-- Responsive (mobile-first), con sidebar colapsible en móvil.
-- Modales para formularios y confirmaciones; toasts para notificaciones.
-- Tablas con paginación, ordenamiento y filtros; badges de estado.
-- Alertas visuales para stock bajo y bloqueo de funciones según el plan.
-- Moneda en formato COP (`$1.234.567`) y fechas en `DD/MM/YYYY`.
-- Todos los textos en español.
+Si el backend aún no está levantado, la SPA muestra las vistas base y los datos
+de ejemplo del módulo ganadero.
 
 ---
 
-## Seguridad, privacidad y cumplimiento
+## Módulos previstos
 
-### Secretos
-
-- Jamás subir `backend/.env` ni `frontend/.env` a git (ver `.gitignore`).
-- El servidor **no arranca sin `JWT_SECRET`** (falla rápido en vez de usar un valor público).
-- Las claves de Cloudinary viven **solo** en el backend. Si un secreto se expone
-  (chat, repo, logs), **rotarlo de inmediato** y actualizar el `.env`.
-- El `LICENSE_SECRET` no debe cambiarse una vez emitidas licencias: las invalidaría.
-
-### HTTPS en producción (obligatorio)
-
-1. Servir el backend detrás de Nginx/Caddy con certificado TLS (Certbot/Let's Encrypt).
-2. En `backend/.env`: `FORCE_HTTPS=true` (redirección 301 de HTTP a HTTPS) y
-   `CORS_ORIGIN=https://su-dominio.com`.
-3. En desarrollo local: `FORCE_HTTPS=false` y `CORS_ORIGIN` vacío.
-
-Ejemplo mínimo de Nginx:
-
-```nginx
-server {
-  listen 443 ssl;
-  server_name su-dominio.com;
-  ssl_certificate /etc/letsencrypt/live/su-dominio.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/su-dominio.com/privkey.pem;
-  location /api/ { proxy_pass http://127.0.0.1:3000/api/; proxy_set_header X-Forwarded-Proto https; }
-  location / { root /var/www/sivep/dist; try_files $uri /index.html; }
-}
-```
-
-### Protecciones activas
-
-- Cabeceras de seguridad con `@fastify/helmet` (HSTS, anti-clickjacking, no-sniff, etc.).
-- Rate-limit global (500 req/min) y login limitado (20 intentos/15 min por IP).
-- Contraseñas con bcrypt (12 rondas), JWT de 24 h, mensajes de login genéricos y
-  control de acceso por rol y por plan.
-- Subidas validadas por tipo y tamaño (10 MB); imágenes en Cloudinary y URLs
-  absolutas en BD.
-- Aislamiento multi-tenant a nivel de consulta (ver sección correspondiente).
-
-### Privacidad y datos (Colombia)
-
-- Páginas legales: `/privacidad`, `/terminos`, `/reembolsos`, `/cookies`
-  (Ley 1581/2012, Decreto 1377/2013, Ley 1480/2011 y lineamientos de la SIC).
-- El formulario público exige la aceptación de la política (autorización previa,
-  expresa e informada) y solicita solo los datos necesarios.
-- El aviso de cookies permite aceptar, rechazar o personalizar las categorías
-  opcionales; el consentimiento se registra y respeta.
-- Operativo pendiente: copias de seguridad cifradas de MySQL y procedimiento
-  formal de supresión de datos.
+- **Ganado:** animales, ID único, arete/RFID, genealogía, lotes, pesos, GMD,
+  vacunas, tratamientos, reproducción, movimientos y resúmenes mensuales.
+- **Inventario:** productos, stock, movimientos y alertas.
+- **Ventas:** ítems, totales, pagos, entregas y venta de animales.
+- **Clientes:** documentos, comprobantes e historial.
+- **Reportes:** operativos, exportaciones y analítica avanzada.
+- **Suscripciones:** planes, features, pagos manuales, cupones, licencias y
+  servicios de valor agregado.
+- **Monetización:** back office para `super_admin`.
+- **Usuarios y roles:** `super_admin`, `admin_granja`, `veterinario`, `operario`.
 
 ---
 
-## Calidad y operación
+## Decisiones de arquitectura
 
-- **Pruebas:** el backend incluye pruebas unitarias de la lógica pura (cupones y
-  licencias) con el runner nativo de Node (`pnpm test`). No requieren base de datos.
-- **Linter:** ambos paquetes usan ESLint (flat config) con reglas orientadas a
-  errores reales (`pnpm run lint`).
-- **Integración continua:** `.github/workflows/ci.yml` ejecuta lint + tests del
-  backend y lint + build del frontend en cada push y pull request.
-- **Ciclo de vida:** el temporizador de suscripciones corre dentro del proceso del
-  servidor (se ejecuta al arrancar y cada 6 horas).
+| Tema | Decisión |
+| --- | --- |
+| Multi-tenant | Una BD con `organization_id` + global scope |
+| Autenticación | Sanctum SPA (cookies HttpOnly + CSRF) |
+| Autorización | Roles/permisos + policies + gating por plan |
+| Facturación | Pago manual con interfaz extensible de pasarela |
+| Ganado | Multiespecie configurable |
+| Datos históricos | No se migran; seeds de demostración |
+| Realtime | Laravel Reverb o SSE |
+
+---
+
+## Documentación
+
+- [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) — stack, capas, multi-tenant,
+  auth, billing, seguridad y fases.
+- [`docs/MODELO-GANADERO.md`](docs/MODELO-GANADERO.md) — tablas, reglas de
+  negocio, API y pruebas del módulo ganadero.
+- [`legacy/README.md`](legacy/README.md) — documentación del sistema anterior.
+
+---
+
+## Fases
+
+1. Fundaciones: repositorio, documentación y frontend base. ✅
+2. Laravel + Sanctum + organizaciones + usuarios + roles + multi-tenant.
+3. Módulo ganadero completo.
+4. Núcleo de granja: productos, inventario, clientes, ventas y reportes.
+5. Suscripciones, planes, pagos y gating.
+6. Portal público, formularios y archivos.
+7. Tiempo real, analítica avanzada y reportes ganaderos.
+8. Pruebas E2E, seeds, documentación y despliegue.
 
 ---
 
 ## Licencia
 
-Desarrollado para la Granja El Cairo — Universidad Nacional de Colombia,
-Sede Orinoquía.
+Uso institucional — Universidad Nacional de Colombia, Sede Orinoquía.

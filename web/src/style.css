@@ -1,0 +1,108 @@
+@import '@fontsource-variable/inter';
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Paleta institucional UNAL */
+  --color-unal-primary: #8b1e3f;
+  --color-unal-primary-light: #a83256;
+  --color-unal-primary-dark: #6d1731;
+  --color-unal-accent: #5b8c4e;
+  --color-unal-accent-light: #74a865;
+  --color-unal-secondary: #4a4a4a;
+  --color-unal-secondary-light: #6b6b6b;
+  --color-unal-background: #f8f9fa;
+  --color-unal-border: #e5e7eb;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-unal-background);
+    color: var(--color-unal-secondary);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-unal-border bg-white shadow-sm;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-unal-primary/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-unal-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-unal-primary-dark focus:outline-none focus:ring-2 focus:ring-unal-primary/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-unal-border bg-white px-4 py-2 text-sm font-medium text-unal-secondary transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-unal-primary/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-unal-secondary transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-unal-primary/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-unal-border bg-white px-3 py-2 text-sm text-unal-secondary placeholder:text-gray-400 focus:border-unal-primary focus:outline-none focus:ring-2 focus:ring-unal-primary/20;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-unal-secondary;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center gap-1 rounded-full bg-unal-accent/10 px-2.5 py-0.5 text-xs font-medium text-unal-accent;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700;
+  }
+
+  .badge-danger {
+    @apply inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700;
+  }
+
+  .badge-info {
+    @apply inline-flex items-center gap-1 rounded-full bg-unal-primary/10 px-2.5 py-0.5 text-xs font-medium text-unal-primary;
+  }
+
+  .table-base {
+    @apply w-full text-left text-sm;
+  }
+
+  .table-base thead {
+    @apply border-b border-unal-border bg-gray-50 text-xs uppercase tracking-wide text-unal-secondary-light;
+  }
+
+  .table-base th {
+    @apply px-4 py-3 font-semibold;
+  }
+
+  .table-base td {
+    @apply border-b border-unal-border px-4 py-3;
+  }
+
+  .table-base tbody tr:last-child td {
+    @apply border-b-0;
+  }
+}
