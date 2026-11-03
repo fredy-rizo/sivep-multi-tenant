@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F9FA;
+  color: #4A4A4A;
+  line-height: 1.6;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-unal-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-unal-primary-light transition-colors focus:outline-none focus:ring-2 focus:ring-unal-primary focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-unal-secondary text-white px-4 py-2 rounded-lg font-medium hover:bg-unal-secondary-light transition-colors focus:outline-none focus:ring-2 focus:ring-unal-secondary focus:ring-offset-2;
+  }
+  
+  .btn-accent {
+    @apply text-white px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background-color: #3F6537;
+  }
+  .btn-accent:hover {
+    background-color: #35552F;
+  }
+  .btn-accent:focus {
+    --tw-ring-color: #3F6537;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-unal-primary text-unal-primary px-4 py-2 rounded-lg font-medium hover:bg-unal-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-unal-primary focus:ring-offset-2;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-unal-primary focus:border-transparent transition-all;
+  }
+  .input-field::placeholder {
+    color: #6B7280;
+  }
+  
+  .label-field {
+    @apply block text-sm font-medium text-unal-secondary mb-1;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+  }
+  
+  .table-container {
+    @apply overflow-x-auto scrollbar-thin;
+  }
+  
+  .table {
+    @apply w-full text-sm min-w-[640px];
+  }
+  
+  .table th {
+    @apply px-4 py-3 text-left text-xs font-semibold text-unal-secondary uppercase tracking-wider bg-gray-50 border-b border-gray-100;
+  }
+  
+  .table td {
+    @apply px-4 py-3 border-b border-gray-100;
+  }
+  
+  .table tbody tr:hover {
+    @apply bg-gray-50;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-danger {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .badge-gray {
+    @apply bg-gray-100 text-gray-800;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #D1D5DB transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #D1D5DB;
+    border-radius: 3px;
+  }
+}
+
+/* ============ MODO OSCURO — paleta del escudo UNAL ============
+   Inspirada en el escudo: negro del cóndor y cuarteles para fondos,
+   granate de los cuarteles rojos para acentos, oliva de los laureles
+   para confirmaciones y blanco cálido para el texto.
+   Contrastes verificados WCAG AA (4.5:1) sobre las superficies oscuras:
+   texto base ~16:1, granate claro ~8.5:1, oliva claro ~8.5:1,
+   texto atenuado ~5.5:1, placeholder ~4.8:1. */
+.dark {
+  color-scheme: dark;
+}
+
+/* Fondo general: negro cálido con tinte granate (cóndor / cuarteles). */
+.dark body {
+  background-color: #150F12;
+  color: #F5EDEF;
+}
+
+.dark .bg-unal-background {
+  background-color: #150F12;
+}
+
+/* Superficies (cards, sidebar, header, modales): gris granate oscuro. */
+.dark .bg-white {
+  background-color: #20161B;
+}
+
+/* Superficies secundarias y hover con el mismo tinte cálido. */
+.dark .bg-gray-50 {
+  background-color: #241B20;
+}
+
+.dark .bg-gray-100 {
+  background-color: #2E2126;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #33262C;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #241B20;
+}
+
+/* Texto: blanco cálido y gris rosado atenuado (legibles sobre granate). */
+.dark .text-unal-secondary {
+  color: #F5EDEF;
+}
+
+.dark .text-unal-secondary-light {
+  color: #C9B8BE;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-800 {
+  color: #EADFE3;
+}
+
+/* Gris casi negro: en oscuro pasa a blanco cálido (valores de la
+   validación de entrega y etiquetas neutras). */
+.dark .text-gray-900 {
+  color: #FFFFFF;
+}
+
+.dark .text-gray-600,
+.dark .hover\:text-gray-600:hover {
+  color: #EADFE3;
+}
+
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: #A78F98;
+}
+
+/* Granate UNAL (#8B1E3F) sobre fondo oscuro es ilegible (~1.5:1):
+   se usa carmesí claro de los cuarteles del escudo (~8.5:1). */
+.dark .text-unal-primary {
+  color: #E8A0B0;
+}
+
+.dark .hover\:text-unal-primary:hover {
+  color: #E8A0B0;
+}
+
+/* Verde oliva de los laureles, aclarado para fondo oscuro (~8.5:1). */
+.dark .text-unal-accent {
+  color: #9DBE8C;
+}
+
+/* Rojos y verdes de estado aclarados para mantener contraste. */
+.dark .text-red-500 {
+  color: #F87171;
+}
+
+.dark .text-green-600 {
+  color: #4ADE80;
+}
+
+.dark .text-yellow-600 {
+  color: #FACC15;
+}
+
+/* Bordes cálidos a juego con las superficies. */
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: #3D2B33;
+}
+
+.dark .badge-gray {
+  color: #EADFE3;
+}
+
+.dark .input-field {
+  background-color: #2C1F25;
+  border-color: #4A3540;
+  color: #F5EDEF;
+}
+
+.dark .input-field::placeholder {
+  color: #A78F98;
+}
+
+.dark .label-field {
+  color: #D8C6CD;
+}
+
+/* Gráficas (Recharts usa atributos SVG, no clases de Tailwind). */
+.dark .recharts-cartesian-grid line {
+  stroke: #3D2B33;
+}
+
+.dark .recharts-cartesian-axis-tick text {
+  fill: #C9B8BE;
+}
