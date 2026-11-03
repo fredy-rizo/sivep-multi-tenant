@@ -5,8 +5,13 @@ use App\Http\Controllers\Api\V1\AnimalEventController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BillingController;
 use App\Http\Controllers\Api\V1\CatalogController;
+use App\Http\Controllers\Api\V1\CustomerController;
+use App\Http\Controllers\Api\V1\FarmReportController;
+use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\OrganizationController;
+use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\SaleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,6 +67,41 @@ Route::prefix('v1')->group(function () {
                 Route::post('catalogs/lots', [CatalogController::class, 'storeLot'])->middleware('permission:catalogs.manage');
                 Route::put('catalogs/lots/{lot}', [CatalogController::class, 'updateLot'])->middleware('permission:catalogs.manage');
                 Route::delete('catalogs/lots/{lot}', [CatalogController::class, 'destroyLot'])->middleware('permission:catalogs.manage');
+            });
+
+            // Núcleo de granja: inventario de productos.
+            Route::middleware('feature:inventory.core')->group(function () {
+                Route::get('inventory/summary', [InventoryController::class, 'summary'])->middleware('permission:inventory.view');
+                Route::get('inventory/movements', [InventoryController::class, 'index'])->middleware('permission:inventory.view');
+                Route::post('inventory/movements', [InventoryController::class, 'store'])->middleware('permission:inventory.manage');
+
+                Route::get('products', [ProductController::class, 'index'])->middleware('permission:inventory.view');
+                Route::post('products', [ProductController::class, 'store'])->middleware('permission:inventory.manage');
+                Route::get('products/{product}', [ProductController::class, 'show'])->middleware('permission:inventory.view');
+                Route::put('products/{product}', [ProductController::class, 'update'])->middleware('permission:inventory.manage');
+                Route::patch('products/{product}', [ProductController::class, 'update'])->middleware('permission:inventory.manage');
+                Route::delete('products/{product}', [ProductController::class, 'destroy'])->middleware('permission:inventory.manage');
+            });
+
+            // Clientes de la organización.
+            Route::middleware('feature:clients.core')->group(function () {
+                Route::get('customers', [CustomerController::class, 'index'])->middleware('permission:customers.view');
+                Route::get('customers/summary', [CustomerController::class, 'summary'])->middleware('permission:customers.view');
+                Route::post('customers', [CustomerController::class, 'store'])->middleware('permission:customers.manage');
+                Route::get('customers/{customer}', [CustomerController::class, 'show'])->middleware('permission:customers.view');
+                Route::put('customers/{customer}', [CustomerController::class, 'update'])->middleware('permission:customers.manage');
+                Route::patch('customers/{customer}', [CustomerController::class, 'update'])->middleware('permission:customers.manage');
+                Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->middleware('permission:customers.manage');
+            });
+
+            // Ventas y reportes comerciales.
+            Route::middleware('feature:sales.core')->group(function () {
+                Route::get('sales', [SaleController::class, 'index'])->middleware('permission:sales.view');
+                Route::post('sales', [SaleController::class, 'store'])->middleware('permission:sales.create');
+                Route::get('sales/{sale}', [SaleController::class, 'show'])->middleware('permission:sales.view');
+                Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->middleware('permission:sales.cancel');
+
+                Route::get('reports/farm', [FarmReportController::class, 'summary'])->middleware('permission:reports.view');
             });
 
             Route::get('billing/current', [BillingController::class, 'current']);

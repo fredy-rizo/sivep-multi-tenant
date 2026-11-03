@@ -21,6 +21,7 @@ import { usePlanStore } from '@/stores/plan'
 const auth = useAuthStore()
 const plan = usePlanStore()
 const summary = ref(null)
+const farm = ref(null)
 
 const firstName = computed(() => auth.displayName.split(' ')[0])
 
@@ -48,19 +49,27 @@ const kpis = computed(() => [
   },
   {
     label: 'Ventas del mes',
-    value: '—',
-    hint: 'Módulo de ventas en construcción',
+    value: farm.value?.sales?.month_total != null
+      ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(farm.value.sales.month_total)
+      : '—',
+    hint: `${farm.value?.sales?.month_count ?? 0} ventas registradas`,
     icon: CircleDollarSign,
     tone: 'text-sky-700 bg-sky-100',
   },
 ])
 
 onMounted(async () => {
-  try {
-    const { data } = await http.get('/reports/summary')
-    summary.value = data.data
-  } catch {
-    summary.value = null
+  const [livestockResponse, farmResponse] = await Promise.allSettled([
+    http.get('/reports/summary'),
+    http.get('/reports/farm'),
+  ])
+
+  if (livestockResponse.status === 'fulfilled') {
+    summary.value = livestockResponse.value.data.data
+  }
+
+  if (farmResponse.status === 'fulfilled') {
+    farm.value = farmResponse.value.data.data
   }
 })
 
@@ -121,8 +130,8 @@ const quickActions = [
       <div class="flex items-start gap-2 border-t border-unal-border bg-unal-primary/5 px-6 py-3 text-xs text-unal-secondary">
         <Info class="mt-0.5 h-4 w-4 shrink-0 text-unal-primary" />
         <p>
-          Los indicadores ganaderos ya se consultan desde la API. Inventario, ventas
-          y clientes siguen en construcción.
+          Los indicadores ganaderos, de inventario y de ventas se consultan en
+          tiempo real desde la API de Laravel.
         </p>
       </div>
     </section>
@@ -185,7 +194,7 @@ const quickActions = [
             <span class="mt-1 h-2.5 w-2.5 rounded-full bg-unal-accent" />
             <div>
               <p class="text-sm font-medium text-unal-secondary">Frontend Vue 3</p>
-              <p class="text-xs text-unal-secondary-light">Login, ganado y planes conectados al API.</p>
+              <p class="text-xs text-unal-secondary-light">Login, ganado, inventario, ventas, clientes y reportes conectados al API.</p>
             </div>
           </div>
           <div class="flex items-start gap-3">
@@ -203,7 +212,14 @@ const quickActions = [
             </div>
           </div>
           <div class="flex items-start gap-3">
-            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-amber-400" />
+            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-unal-accent" />
+            <div>
+              <p class="text-sm font-medium text-unal-secondary">Núcleo de granja</p>
+              <p class="text-xs text-unal-secondary-light">Productos, stock, clientes, ventas y anulaciones.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-unal-accent" />
             <div>
               <p class="text-sm font-medium text-unal-secondary">Suscripciones y planes</p>
               <p class="text-xs text-unal-secondary-light">Pago manual y gating por feature.</p>
@@ -214,7 +230,7 @@ const quickActions = [
         <div class="border-t border-unal-border px-5 py-4">
           <div class="flex items-center gap-2 text-xs text-unal-secondary-light">
             <CalendarClock class="h-4 w-4" />
-            Fase actual: inventario, ventas y reportes avanzados
+            Fase actual: portal público, archivos y analítica avanzada
           </div>
         </div>
       </section>

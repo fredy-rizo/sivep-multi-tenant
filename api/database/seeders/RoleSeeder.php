@@ -20,6 +20,13 @@ class RoleSeeder extends Seeder
             'animals.delete' => 'Eliminar animales',
             'events.create' => 'Registrar eventos',
             'events.delete' => 'Eliminar eventos',
+            'inventory.view' => 'Ver inventario y movimientos',
+            'inventory.manage' => 'Administrar productos y movimientos',
+            'customers.view' => 'Ver clientes',
+            'customers.manage' => 'Administrar clientes',
+            'sales.view' => 'Ver ventas',
+            'sales.create' => 'Registrar ventas',
+            'sales.cancel' => 'Anular ventas',
             'catalogs.manage' => 'Administrar catálogos',
             'reports.view' => 'Ver reportes',
             'billing.manage' => 'Administrar plan y suscripción',
@@ -36,13 +43,17 @@ class RoleSeeder extends Seeder
             'admin_granja' => [
                 'animals.view', 'animals.create', 'animals.update', 'animals.delete',
                 'events.create', 'events.delete', 'catalogs.manage', 'reports.view',
+                'inventory.view', 'inventory.manage', 'customers.view', 'customers.manage',
+                'sales.view', 'sales.create', 'sales.cancel',
                 'billing.manage', 'users.manage',
             ],
             'veterinario' => [
                 'animals.view', 'animals.update', 'events.create', 'events.delete', 'reports.view',
+                'inventory.view', 'customers.view', 'sales.view',
             ],
             'operario' => [
                 'animals.view', 'animals.create', 'animals.update', 'events.create',
+                'inventory.view', 'inventory.manage', 'customers.view', 'sales.view', 'sales.create',
             ],
         ];
 

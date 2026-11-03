@@ -4,14 +4,19 @@ namespace Database\Seeders;
 
 use App\Models\Animal;
 use App\Models\Breed;
+use App\Models\Customer;
 use App\Models\EventType;
 use App\Models\Lot;
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Models\Product;
+use App\Models\Sale;
 use App\Models\Species;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Vaccine;
+use App\Services\Farm\InventoryService;
+use App\Services\Farm\SaleService;
 use App\Services\Livestock\AnimalEventService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -77,7 +82,7 @@ class DemoSeeder extends Seeder
         );
         $operator->syncRoles(['operario']);
 
-        $plan = Plan::where('code', 'intermedio')->first();
+        $plan = Plan::where('code', 'avanzado')->first();
 
         if ($plan) {
             Subscription::updateOrCreate(
@@ -209,6 +214,127 @@ class DemoSeeder extends Seeder
                     'next_due_date' => now()->addDays(25)->toDateString(),
                 ], $vet->id);
             }
+        }
+
+        $this->seedFarm($organization, $owner, $operator);
+    }
+
+    private function seedFarm(Organization $organization, User $owner, User $operator): void
+    {
+        /** @var InventoryService $inventory */
+        $inventory = app(InventoryService::class);
+
+        $products = [
+            ['sku' => 'LECHE-01', 'name' => 'Leche cruda', 'category' => 'Lácteos', 'unit' => 'litro', 'price' => 2200, 'cost' => 1400, 'stock' => 120, 'min_stock' => 30],
+            ['sku' => 'QUESO-01', 'name' => 'Queso campesino', 'category' => 'Lácteos', 'unit' => 'kg', 'price' => 14000, 'cost' => 9000, 'stock' => 24, 'min_stock' => 8],
+            ['sku' => 'HUEVO-01', 'name' => 'Huevo fresco', 'category' => 'Avícola', 'unit' => 'unidad', 'price' => 600, 'cost' => 380, 'stock' => 300, 'min_stock' => 80],
+            ['sku' => 'CONC-01', 'name' => 'Concentrado bovino', 'category' => 'Alimento', 'unit' => 'bulto', 'price' => 78000, 'cost' => 62000, 'stock' => 18, 'min_stock' => 6],
+            ['sku' => 'SAL-01', 'name' => 'Sal mineralizada', 'category' => 'Alimento', 'unit' => 'bulto', 'price' => 42000, 'cost' => 32000, 'stock' => 9, 'min_stock' => 10],
+            ['sku' => 'VAC-01', 'name' => 'Vacuna aftosa', 'category' => 'Sanidad', 'unit' => 'frasco', 'price' => 85000, 'cost' => 68000, 'stock' => 7, 'min_stock' => 3],
+            ['sku' => 'DESP-01', 'name' => 'Ivermectina 1%', 'category' => 'Sanidad', 'unit' => 'frasco', 'price' => 26000, 'cost' => 18000, 'stock' => 12, 'min_stock' => 4],
+            ['sku' => 'ABONO-01', 'name' => 'Abono orgánico', 'category' => 'Agrícola', 'unit' => 'bulto', 'price' => 28000, 'cost' => 19000, 'stock' => 5, 'min_stock' => 6],
+        ];
+
+        $productModels = [];
+
+        foreach ($products as $data) {
+            $product = Product::firstOrCreate(
+                ['organization_id' => $organization->id, 'sku' => $data['sku']],
+                [
+                    ...$data,
+                    'stock' => 0,
+                    'is_active' => true,
+                    'description' => 'Producto de demostración.',
+                ],
+            );
+
+            if ($product->wasRecentlyCreated && $data['stock'] > 0) {
+                $inventory->register($product, [
+                    'type' => 'entrada',
+                    'quantity' => $data['stock'],
+                    'unit_cost' => $data['cost'],
+                    'reason' => 'Inventario inicial',
+                    'movement_date' => now()->subDays(12)->toDateString(),
+                ], $owner->id);
+            }
+
+            $productModels[$data['sku']] = $product->fresh();
+        }
+
+        $customers = [
+            ['document_type' => 'CC', 'document_number' => '1045678901', 'name' => 'María Fernanda López', 'phone' => '+57 310 555 1020', 'email' => 'maria.lopez@example.com', 'city' => 'Montería', 'address' => 'Calle 24 # 8-15'],
+            ['document_type' => 'NIT', 'document_number' => '900456789-2', 'name' => 'Lácteos del Sinú SAS', 'phone' => '+57 320 444 8899', 'email' => 'compras@lacteosdelsinu.co', 'city' => 'Montería', 'address' => 'Zona industrial Km 3'],
+            ['document_type' => 'CC', 'document_number' => '78654321', 'name' => 'Jorge Mario Cárdenas', 'phone' => '+57 315 777 2211', 'email' => 'jorge.cardenas@example.com', 'city' => 'Cereté', 'address' => 'Carrera 5 # 12-40'],
+            ['document_type' => 'NIT', 'document_number' => '901234567-8', 'name' => 'Restaurante La Cosecha', 'phone' => '+57 305 123 9944', 'email' => 'admin@lacosecha.co', 'city' => 'Montería', 'address' => 'Centro comercial Plaza Real'],
+            ['document_type' => 'CC', 'document_number' => '1122334455', 'name' => 'Rosa Elena Villalba', 'phone' => '+57 312 888 4455', 'email' => 'rosa.villalba@example.com', 'city' => 'Ciénaga de Oro', 'address' => 'Transversal 7 # 4-22'],
+        ];
+
+        $customerModels = collect($customers)->mapWithKeys(fn ($data) => [
+            $data['document_number'] => Customer::updateOrCreate(
+                ['organization_id' => $organization->id, 'document_number' => $data['document_number']],
+                [...$data, 'is_active' => true],
+            ),
+        ]);
+
+        if (Sale::query()->where('organization_id', $organization->id)->exists()) {
+            return;
+        }
+
+        /** @var SaleService $sales */
+        $sales = app(SaleService::class);
+
+        $saleData = [
+            ['customer' => '1045678901', 'days' => 1, 'status' => 'pagada', 'payment_method' => 'nequi', 'items' => [['sku' => 'LECHE-01', 'quantity' => 20], ['sku' => 'QUESO-01', 'quantity' => 3]]],
+            ['customer' => '900456789-2', 'days' => 4, 'status' => 'pagada', 'payment_method' => 'transferencia', 'discount' => 15000, 'items' => [['sku' => 'LECHE-01', 'quantity' => 60], ['sku' => 'QUESO-01', 'quantity' => 8]]],
+            ['customer' => '78654321', 'days' => 8, 'status' => 'pendiente', 'payment_method' => 'credito', 'items' => [['sku' => 'HUEVO-01', 'quantity' => 120], ['sku' => 'CONC-01', 'quantity' => 2]]],
+            ['customer' => '901234567-8', 'days' => 15, 'status' => 'pagada', 'payment_method' => 'efectivo', 'items' => [['sku' => 'HUEVO-01', 'quantity' => 80], ['sku' => 'QUESO-01', 'quantity' => 5]]],
+            ['customer' => '1122334455', 'days' => 25, 'status' => 'pagada', 'payment_method' => 'daviplata', 'items' => [['sku' => 'SAL-01', 'quantity' => 2], ['sku' => 'DESP-01', 'quantity' => 3]]],
+        ];
+
+        foreach ($saleData as $data) {
+            $items = collect($data['items'])->map(function ($item) use ($productModels) {
+                $product = $productModels[$item['sku']];
+
+                return [
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => (float) $product->price,
+                ];
+            })->all();
+
+            $sales->create([
+                'organization_id' => $organization->id,
+                'customer_id' => $customerModels[$data['customer']]->id,
+                'sale_date' => now()->subDays($data['days'])->toDateString(),
+                'status' => $data['status'],
+                'payment_method' => $data['payment_method'],
+                'discount' => $data['discount'] ?? 0,
+                'items' => $items,
+                'notes' => 'Venta de demostración.',
+            ], $operator->id);
+        }
+
+        $soldAnimal = Animal::query()
+            ->where('organization_id', $organization->id)
+            ->where('code', 'BOV-002')
+            ->whereNotIn('status', ['vendido', 'fallecido'])
+            ->first();
+
+        if ($soldAnimal) {
+            $sales->create([
+                'organization_id' => $organization->id,
+                'customer_id' => $customerModels['900456789-2']->id,
+                'sale_date' => now()->subDays(3)->toDateString(),
+                'status' => 'pagada',
+                'payment_method' => 'transferencia',
+                'items' => [[
+                    'animal_id' => $soldAnimal->id,
+                    'quantity' => 1,
+                    'unit_price' => 4200000,
+                    'description' => "Animal {$soldAnimal->code} {$soldAnimal->name}",
+                ]],
+                'notes' => 'Venta de animal de demostración.',
+            ], $owner->id);
         }
     }
 }

@@ -275,10 +275,10 @@ web/src/
 | `/dashboard` | Resumen operativo | UI base |
 | `/ganado` | Inventario animal | UI demo |
 | `/ganado/:id` | Ficha del animal | UI demo |
-| `/inventario` | Stock y movimientos | Placeholder |
-| `/ventas` | Ventas | Placeholder |
-| `/clientes` | Clientes | Placeholder |
-| `/reportes` | Reportes y analítica | Placeholder |
+| `/inventario` | Stock y movimientos | UI conectada |
+| `/ventas` | Ventas | UI conectada |
+| `/clientes` | Clientes | UI conectada |
+| `/reportes` | Reportes y analítica | UI conectada |
 | `/mi-plan` | Suscripción | UI base |
 | `/admin/monetizacion` | Back office SaaS | Placeholder |
 | `/usuarios` | Usuarios y roles | Placeholder |
@@ -308,8 +308,7 @@ web/src/
 | 1 | Laravel + Sanctum + organizaciones + usuarios + roles + multi-tenant |
 | 2 | Módulo ganadero: especies, razas, lotes, animales, eventos, pesos, vacunas |
 | 3 | Núcleo de granja: productos, inventario, clientes, ventas, reportes |
-| 4 | Suscripciones, planes, pagos manuales, cupones y gating |
-| 5 | Portal público, formularios y archivos |
+| 4 | Suscripciones, planes, pagos manuales, cupones y gating || 5 | Portal público, formularios y archivos |
 | 6 | Tiempo real, analítica avanzada y reportes ganaderos |
 | 7 | Endurecimiento, pruebas E2E, seeds, documentación y despliegue |
 

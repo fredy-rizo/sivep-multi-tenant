@@ -29,8 +29,8 @@ como referencia funcional.
 | Planes, suscripciones y gating por feature | ✅ |
 | Frontend Vue conectado al API | ✅ |
 | Base de datos local | ⏳ Crear usuario/BD MySQL |
-| Inventario, ventas, clientes y reportes avanzados | ⏳ Fase siguiente |
-| Tests automatizados | ⏳ Fase siguiente |
+| Inventario, ventas, clientes y reportes avanzados | ✅ |
+| Tests automatizados | ✅ |
 
 ---
 
@@ -171,7 +171,17 @@ Autenticación por sesión (Sanctum SPA, cookies HttpOnly + CSRF).
 | POST | `/api/v1/animals/{id}/events` | Registrar peso, vacuna o evento |
 | GET | `/api/v1/events` | Listar eventos con filtros |
 | GET | `/api/v1/catalogs/*` | Especies, razas, lotes, vacunas y tipos |
-| GET | `/api/v1/reports/*` | Resumen, evolución de peso y vacunas próximas |
+| GET/POST | `/api/v1/products` | Listar / crear productos |
+| GET/PUT/DELETE | `/api/v1/products/{id}` | Detalle, edición y baja lógica |
+| GET/POST | `/api/v1/inventory/movements` | Movimientos de stock |
+| GET | `/api/v1/inventory/summary` | Resumen y alertas de stock |
+| GET/POST | `/api/v1/customers` | Listar / crear clientes |
+| GET/PUT/DELETE | `/api/v1/customers/{id}` | Detalle, edición y baja lógica |
+| GET | `/api/v1/customers/summary` | Indicadores de clientes |
+| GET/POST | `/api/v1/sales` | Listar / registrar ventas |
+| GET | `/api/v1/sales/{id}` | Detalle de una venta |
+| POST | `/api/v1/sales/{id}/cancel` | Anular y restaurar stock |
+| GET | `/api/v1/reports/*` | Reportes ganaderos y comerciales |
 
 El gating por plan responde **402** cuando falta una feature y los permisos
 responden **403**.
@@ -198,6 +208,8 @@ responden **403**.
   auth, billing, seguridad y fases.
 - [`docs/MODELO-GANADERO.md`](docs/MODELO-GANADERO.md) — tablas, reglas de
   negocio, API y pruebas del módulo ganadero.
+- [`docs/MODELO-GRANJA.md`](docs/MODELO-GRANJA.md) — inventario, clientes,
+  ventas, anulaciones y gating.
 - [`legacy/README.md`](legacy/README.md) — documentación del sistema anterior.
 
 ---
@@ -207,7 +219,7 @@ responden **403**.
 1. Fundaciones: repositorio, documentación y frontend base. ✅
 2. Laravel + Sanctum + organizaciones + usuarios + roles + multi-tenant. ✅
 3. Módulo ganadero completo. ✅
-4. Núcleo de granja: productos, inventario, clientes, ventas y reportes. ⏳
+4. Núcleo de granja: productos, inventario, clientes, ventas y reportes. ✅
 5. Suscripciones, planes, pagos y gating. ✅ (pago manual)
 6. Portal público, formularios y archivos. ⏳
 7. Tiempo real, analítica avanzada y reportes ganaderos. ⏳
