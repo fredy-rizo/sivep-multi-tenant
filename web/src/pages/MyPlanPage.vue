@@ -6,24 +6,18 @@ import { usePlanStore } from '@/stores/plan'
 
 const plan = usePlanStore()
 
-const features = computed(() => plan.plan?.features ?? [])
-const limits = computed(() => plan.plan?.limits ?? {})
+const features = computed(() => plan.features)
+const limits = computed(() => ({}))
 
 const featureLabels = {
-  'core.inventory': 'Gestión de inventario',
-  'core.sales': 'Ventas',
-  'core.customers': 'Clientes',
-  'core.products': 'Productos',
-  'reports.basic': 'Reportes básicos',
-  'reports.advanced': 'Reportes avanzados',
-  'analytics.algebra': 'Proyecciones (álgebra lineal)',
-  'analytics.calculus': 'Ritmo y optimización (cálculo)',
-  'public.form': 'Formulario público',
-  multisite: 'Múltiples sedes',
-  'api.access': 'Acceso por API',
-  'support.email': 'Soporte por email',
-  'support.priority': 'Soporte prioritario',
-  'support.sla': 'SLA garantizado',
+  'livestock.core': 'Gestión de ganado',
+  'livestock.weights': 'Control de pesos',
+  'livestock.vaccines': 'Vacunas y sanidad',
+  'livestock.reports': 'Reportes ganaderos',
+  'inventory.core': 'Inventario',
+  'sales.core': 'Ventas',
+  'clients.core': 'Clientes',
+  'users.multi': 'Usuarios ilimitados',
 }
 
 onMounted(() => {
@@ -82,18 +76,16 @@ onMounted(() => {
             <h4 class="mb-3 text-sm font-semibold text-unal-secondary">Límites</h4>
             <dl class="space-y-2 text-sm">
               <div class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
-                <dt class="text-unal-secondary-light">Usuarios activos</dt>
-                <dd class="font-medium text-unal-secondary">
-                  {{ limits['limit.users'] ?? 'Ilimitados' }}
-                </dd>
+                <dt class="text-unal-secondary-light">Plan</dt>
+                <dd class="font-medium text-unal-secondary">{{ plan.planName || '—' }}</dd>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
-                <dt class="text-unal-secondary-light">Sedes</dt>
-                <dd class="font-medium text-unal-secondary">{{ plan.hasFeature?.('multisite') ? 'Múltiples' : 'Una' }}</dd>
+                <dt class="text-unal-secondary-light">Días restantes</dt>
+                <dd class="font-medium text-unal-secondary">{{ plan.daysLeft ?? '—' }}</dd>
               </div>
               <div class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
-                <dt class="text-unal-secondary-light">Acceso por API</dt>
-                <dd class="font-medium text-unal-secondary">{{ plan.hasFeature?.('api.access') ? 'Sí' : 'No' }}</dd>
+                <dt class="text-unal-secondary-light">Acceso API</dt>
+                <dd class="font-medium text-unal-secondary">Sí</dd>
               </div>
             </dl>
           </div>
@@ -103,8 +95,8 @@ onMounted(() => {
       <div class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800">
         <Info class="mt-0.5 h-4 w-4 shrink-0" />
         <p>
-          El plan se consulta a <code>/api/billing/me</code>. Mientras el backend no
-          esté conectado, esta pantalla mostrará el estado vacío.
+          El plan se consulta a <code>/api/v1/billing/current</code>. El backend
+          valida las funciones incluidas en cada petición.
         </p>
       </div>
     </template>

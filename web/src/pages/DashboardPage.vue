@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
   ArrowRight,
@@ -14,32 +14,34 @@ import {
   Syringe,
   TrendingUp,
 } from '@lucide/vue'
+import http from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { usePlanStore } from '@/stores/plan'
 
 const auth = useAuthStore()
 const plan = usePlanStore()
+const summary = ref(null)
 
 const firstName = computed(() => auth.displayName.split(' ')[0])
 
-const kpis = [
+const kpis = computed(() => [
   {
     label: 'Animales activos',
-    value: '—',
-    hint: 'Se calcula al conectar /api/animals/summary',
+    value: summary.value?.active_animals ?? '—',
+    hint: `${summary.value?.total_animals ?? 0} animales registrados`,
     icon: Beef,
     tone: 'text-unal-primary bg-unal-primary/10',
   },
   {
     label: 'Peso promedio',
-    value: '—',
+    value: summary.value?.average_weight_kg ? `${Math.round(summary.value.average_weight_kg)} kg` : '—',
     hint: 'Último pesaje por animal',
     icon: Scale,
     tone: 'text-unal-accent bg-unal-accent/10',
   },
   {
     label: 'Vacunas próximas',
-    value: '—',
+    value: summary.value?.upcoming_vaccines_30d ?? '—',
     hint: 'Próximos 30 días',
     icon: Syringe,
     tone: 'text-amber-700 bg-amber-100',
@@ -47,11 +49,20 @@ const kpis = [
   {
     label: 'Ventas del mes',
     value: '—',
-    hint: 'Total facturado en el periodo',
+    hint: 'Módulo de ventas en construcción',
     icon: CircleDollarSign,
     tone: 'text-sky-700 bg-sky-100',
   },
-]
+])
+
+onMounted(async () => {
+  try {
+    const { data } = await http.get('/reports/summary')
+    summary.value = data.data
+  } catch {
+    summary.value = null
+  }
+})
 
 const quickActions = [
   {
@@ -92,8 +103,8 @@ const quickActions = [
             <p class="text-xs uppercase tracking-[0.2em] text-white/70">Panel de control</p>
             <h2 class="mt-1 text-2xl font-semibold">Hola, {{ firstName }}</h2>
             <p class="mt-1 max-w-xl text-sm text-white/80">
-              Este es el punto de partida de la nueva plataforma. Los indicadores se
-              conectarán a la API de Laravel en la siguiente fase.
+              Resumen operativo de tu organización. Los indicadores se actualizan en
+              tiempo real desde la API de Laravel.
             </p>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -110,8 +121,8 @@ const quickActions = [
       <div class="flex items-start gap-2 border-t border-unal-border bg-unal-primary/5 px-6 py-3 text-xs text-unal-secondary">
         <Info class="mt-0.5 h-4 w-4 shrink-0 text-unal-primary" />
         <p>
-          Vista inicial del frontend. Aún no hay datos reales: el backend Laravel se
-          scaffoldea cuando estén disponibles PHP y Composer.
+          Los indicadores ganaderos ya se consultan desde la API. Inventario, ventas
+          y clientes siguen en construcción.
         </p>
       </div>
     </section>
@@ -174,28 +185,28 @@ const quickActions = [
             <span class="mt-1 h-2.5 w-2.5 rounded-full bg-unal-accent" />
             <div>
               <p class="text-sm font-medium text-unal-secondary">Frontend Vue 3</p>
-              <p class="text-xs text-unal-secondary-light">Estructura, auth y layout base listos.</p>
+              <p class="text-xs text-unal-secondary-light">Login, ganado y planes conectados al API.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-unal-accent" />
+            <div>
+              <p class="text-sm font-medium text-unal-secondary">Backend Laravel</p>
+              <p class="text-xs text-unal-secondary-light">API v1, Sanctum, multi-tenant y permisos.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-unal-accent" />
+            <div>
+              <p class="text-sm font-medium text-unal-secondary">Módulo ganadero</p>
+              <p class="text-xs text-unal-secondary-light">CRUD, eventos, pesos y resúmenes mensuales.</p>
             </div>
           </div>
           <div class="flex items-start gap-3">
             <span class="mt-1 h-2.5 w-2.5 rounded-full bg-amber-400" />
             <div>
-              <p class="text-sm font-medium text-unal-secondary">Backend Laravel</p>
-              <p class="text-xs text-unal-secondary-light">Pendiente de instalar PHP y Composer.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-gray-300" />
-            <div>
-              <p class="text-sm font-medium text-unal-secondary">Módulo ganadero</p>
-              <p class="text-xs text-unal-secondary-light">Modelo y endpoints definidos en docs.</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-gray-300" />
-            <div>
               <p class="text-sm font-medium text-unal-secondary">Suscripciones y planes</p>
-              <p class="text-xs text-unal-secondary-light">Pago manual con abstracción de pasarela.</p>
+              <p class="text-xs text-unal-secondary-light">Pago manual y gating por feature.</p>
             </div>
           </div>
         </div>
@@ -203,7 +214,7 @@ const quickActions = [
         <div class="border-t border-unal-border px-5 py-4">
           <div class="flex items-center gap-2 text-xs text-unal-secondary-light">
             <CalendarClock class="h-4 w-4" />
-            Fase actual: fundaciones y frontend
+            Fase actual: inventario, ventas y reportes avanzados
           </div>
         </div>
       </section>

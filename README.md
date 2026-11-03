@@ -5,12 +5,12 @@ para la Granja El Cairo (Universidad Nacional de Colombia — Sede Orinoquía).
 
 Esta es una **reescritura completa** del sistema anterior:
 
-- **Backend:** PHP + Laravel (API REST).
-- **Frontend:** Vue 3 + Vite.
-- **Multi-tenant:** aislamiento por organización.
-- **Suscripciones:** planes, features, pagos manuales y gating.
-- **Módulo nuevo:** información ganadera multiespecie con ID único por animal,
-  pesos, vacunas, reproducción y resúmenes mensuales.
+- **Backend:** PHP 8.5 + Laravel 13 (API REST).
+- **Frontend:** Vue 3 + Vite + Pinia + Tailwind 4.
+- **Multi-tenant:** una base de datos con aislamiento por `organization_id`.
+- **Suscripciones:** planes, features, gating y pasarela de pago extensible.
+- **Módulo ganadero:** multiespecie, ID único por animal, pesos, vacunas,
+  eventos y resúmenes mensuales.
 
 El código anterior (Node/Fastify + React) se conserva en `legacy/` únicamente
 como referencia funcional.
@@ -21,14 +21,16 @@ como referencia funcional.
 
 | Componente | Estado |
 | --- | --- |
-| Repositorio y control de versiones | ✅ Inicializado |
-| Preservación del legado | ✅ En `legacy/` |
-| Documentación de arquitectura | ✅ `docs/ARQUITECTURA.md` |
-| Modelo ganadero | ✅ `docs/MODELO-GANADERO.md` |
-| Frontend Vue 3 | 🟡 Estructura, auth, layout y vistas base |
-| Backend Laravel | ⏳ Pendiente de PHP/Composer |
-| Base de datos | ⏳ Pendiente |
-| Tests | ⏳ Pendiente |
+| Repositorio y control de versiones | ✅ |
+| Preservación del legado | ✅ `legacy/` |
+| Backend Laravel + Sanctum + permisos | ✅ |
+| Multi-tenant (`organization_id`, scope y middleware) | ✅ |
+| Módulo ganadero (API y servicios) | ✅ |
+| Planes, suscripciones y gating por feature | ✅ |
+| Frontend Vue conectado al API | ✅ |
+| Base de datos local | ⏳ Crear usuario/BD MySQL |
+| Inventario, ventas, clientes y reportes avanzados | ⏳ Fase siguiente |
+| Tests automatizados | ⏳ Fase siguiente |
 
 ---
 
@@ -36,16 +38,22 @@ como referencia funcional.
 
 ```
 sivep-multi-tenant/
-├── api/                  # Laravel (se crea cuando estén PHP y Composer)
-├── web/                  # Vue 3 + Vite (inicializado)
+├── api/                  # Laravel 13 (API REST)
+│   ├── app/
+│   │   ├── Contracts/    # PaymentGateway
+│   │   ├── Http/         # Controladores, requests, resources, middleware
+│   │   ├── Models/       # Dominio + trait BelongsToOrganization
+│   │   ├── Services/     # Ganadería y billing
+│   │   └── Support/      # TenantContext
+│   ├── database/         # Migraciones y seeders
+│   └── routes/api.php
+├── web/                  # Vue 3 + Vite
 ├── legacy/
 │   ├── backend/          # Backend Node/Fastify anterior
 │   └── frontend/         # Frontend React anterior
 ├── docs/
 │   ├── ARQUITECTURA.md
 │   └── MODELO-GANADERO.md
-├── .editorconfig
-├── .gitignore
 └── README.md
 ```
 
@@ -55,66 +63,106 @@ sivep-multi-tenant/
 
 - PHP 8.3+ con `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`, `gd`, `intl`.
 - Composer 2.
-- MySQL 8 (o SQLite para desarrollo).
+- MySQL 8.
 - Node 20+ y pnpm.
-- Redis (recomendado para colas, caché y Reverb).
 
 ---
 
 ## Puesta en marcha
 
-### 1. Backend Laravel
+### 1. Crear la base de datos
 
-Cuando PHP y Composer estén instalados:
+El archivo `api/.env` ya está configurado para:
+
+- host `127.0.0.1:3306`
+- base de datos `sivep`
+- usuario `sivep`
+- contraseña `sivep_local`
+
+Crea el usuario y la base con una cuenta con privilegios (por ejemplo el root
+de MySQL):
 
 ```bash
-composer create-project laravel/laravel api
-cd api
-composer require laravel/sanctum spatie/laravel-permission
-composer require --dev pestphp/pest laravel/pint
-php artisan install:api
-cp .env.example .env
-php artisan key:generate
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS sivep CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sivep_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'sivep'@'localhost' IDENTIFIED BY 'sivep_local';
+GRANT ALL PRIVILEGES ON sivep.* TO 'sivep'@'localhost';
+GRANT ALL PRIVILEGES ON sivep_test.* TO 'sivep'@'localhost';
+FLUSH PRIVILEGES;"
 ```
 
-Configura la base de datos en `api/.env` y ejecuta:
+`sivep_test` se usa para las pruebas automatizadas (`php artisan test`).
+
+> Si tu MySQL usa otro puerto o credenciales, ajusta `DB_PORT`, `DB_USERNAME` y
+> `DB_PASSWORD` en `api/.env`.
+
+### 2. Backend
 
 ```bash
+cd api
 php artisan migrate --seed
 php artisan serve   # http://localhost:8000
 ```
 
-> El detalle de la arquitectura, modelos, middleware y fases está en
-> [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).
+Si necesitas reinstalar dependencias desde cero:
 
-### 2. Frontend Vue
+```bash
+composer install
+php artisan key:generate
+```
+
+### 3. Frontend
 
 ```bash
 cd web
-cp .env.example .env
 pnpm install
 pnpm dev   # http://localhost:5173
 ```
 
 Vite hace proxy de `/api`, `/sanctum` y `/storage` hacia `http://localhost:8000`.
 
-Si el backend aún no está levantado, la SPA muestra las vistas base y los datos
-de ejemplo del módulo ganadero.
+---
+
+## Usuarios de demostración
+
+Los seeders crean una organización demo (`Finca La Esperanza`) con datos
+ganaderos multiespecie.
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| Super administrador | `admin@sivep.local` | `Admin123*` |
+| Administrador de granja | `dueno@finca.local` | `Demo123*` |
+| Veterinario | `veterinario@finca.local` | `Demo123*` |
+| Operario | `operario@finca.local` | `Demo123*` |
+
+> El `super_admin` no pertenece a una organización; para usar rutas de negocio
+> debe enviar `X-Organization-Id`. El frontend de soporte para ese selector es
+> una fase posterior.
 
 ---
 
-## Módulos previstos
+## API v1
 
-- **Ganado:** animales, ID único, arete/RFID, genealogía, lotes, pesos, GMD,
-  vacunas, tratamientos, reproducción, movimientos y resúmenes mensuales.
-- **Inventario:** productos, stock, movimientos y alertas.
-- **Ventas:** ítems, totales, pagos, entregas y venta de animales.
-- **Clientes:** documentos, comprobantes e historial.
-- **Reportes:** operativos, exportaciones y analítica avanzada.
-- **Suscripciones:** planes, features, pagos manuales, cupones, licencias y
-  servicios de valor agregado.
-- **Monetización:** back office para `super_admin`.
-- **Usuarios y roles:** `super_admin`, `admin_granja`, `veterinario`, `operario`.
+Autenticación por sesión (Sanctum SPA, cookies HttpOnly + CSRF).
+
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| POST | `/api/v1/auth/login` | Iniciar sesión |
+| GET | `/api/v1/auth/me` | Usuario autenticado |
+| POST | `/api/v1/auth/logout` | Cerrar sesión |
+| GET | `/api/v1/plans` | Planes y features (público) |
+| GET | `/api/v1/billing/current` | Suscripción actual |
+| POST | `/api/v1/billing/change-plan` | Cambiar de plan |
+| POST | `/api/v1/billing/cancel` | Cancelar al final del periodo |
+| GET/POST | `/api/v1/animals` | Listar / crear animales |
+| GET/PUT/DELETE | `/api/v1/animals/{id}` | Detalle, edición y baja lógica |
+| POST | `/api/v1/animals/{id}/events` | Registrar peso, vacuna o evento |
+| GET | `/api/v1/events` | Listar eventos con filtros |
+| GET | `/api/v1/catalogs/*` | Especies, razas, lotes, vacunas y tipos |
+| GET | `/api/v1/reports/*` | Resumen, evolución de peso y vacunas próximas |
+
+El gating por plan responde **402** cuando falta una feature y los permisos
+responden **403**.
 
 ---
 
@@ -124,11 +172,11 @@ de ejemplo del módulo ganadero.
 | --- | --- |
 | Multi-tenant | Una BD con `organization_id` + global scope |
 | Autenticación | Sanctum SPA (cookies HttpOnly + CSRF) |
-| Autorización | Roles/permisos + policies + gating por plan |
-| Facturación | Pago manual con interfaz extensible de pasarela |
+| Autorización | Roles/permisos + gating por plan |
+| Facturación | Pago manual con interfaz `PaymentGateway` extensible |
 | Ganado | Multiespecie configurable |
 | Datos históricos | No se migran; seeds de demostración |
-| Realtime | Laravel Reverb o SSE |
+| Realtime | Laravel Reverb o SSE (fase posterior) |
 
 ---
 
@@ -145,13 +193,13 @@ de ejemplo del módulo ganadero.
 ## Fases
 
 1. Fundaciones: repositorio, documentación y frontend base. ✅
-2. Laravel + Sanctum + organizaciones + usuarios + roles + multi-tenant.
-3. Módulo ganadero completo.
-4. Núcleo de granja: productos, inventario, clientes, ventas y reportes.
-5. Suscripciones, planes, pagos y gating.
-6. Portal público, formularios y archivos.
-7. Tiempo real, analítica avanzada y reportes ganaderos.
-8. Pruebas E2E, seeds, documentación y despliegue.
+2. Laravel + Sanctum + organizaciones + usuarios + roles + multi-tenant. ✅
+3. Módulo ganadero completo. ✅
+4. Núcleo de granja: productos, inventario, clientes, ventas y reportes. ⏳
+5. Suscripciones, planes, pagos y gating. ✅ (pago manual)
+6. Portal público, formularios y archivos. ⏳
+7. Tiempo real, analítica avanzada y reportes ganaderos. ⏳
+8. Pruebas E2E, seeds, documentación y despliegue. 🟡
 
 ---
 

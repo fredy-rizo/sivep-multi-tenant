@@ -1,68 +1,35 @@
 <script setup>
+import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ArrowLeft, Check, Crown, Sparkles } from '@lucide/vue'
+import { ArrowLeft, Check, Crown, Loader2, Sparkles } from '@lucide/vue'
+import http from '@/api/http'
 import LogoShield from '@/components/LogoShield.vue'
 
-const plans = [
-  {
-    code: 'basic',
-    name: 'Básico',
-    description: 'Pequeños productores',
-    monthly: 200000,
-    yearly: 2000000,
-    trial: 14,
-    highlighted: false,
-    features: [
-      'Inventario y productos',
-      'Ventas y clientes',
-      'Reportes básicos con CSV',
-      'Soporte por email',
-      'Hasta 2 usuarios',
-    ],
-  },
-  {
-    code: 'professional',
-    name: 'Profesional',
-    description: 'Granjas medianas y cooperativas',
-    monthly: 550000,
-    yearly: 5500000,
-    trial: 14,
-    highlighted: true,
-    features: [
-      'Todo lo del plan Básico',
-      'Analítica de álgebra lineal',
-      'Ritmo y optimización (cálculo)',
-      'Reportes avanzados',
-      'Formulario público personalizado',
-      'Soporte prioritario',
-      'Hasta 5 usuarios',
-    ],
-  },
-  {
-    code: 'institutional',
-    name: 'Institucional',
-    description: 'Universidades, gobiernos y multi-sede',
-    monthly: 1500000,
-    yearly: 15000000,
-    trial: 30,
-    highlighted: false,
-    features: [
-      'Todo lo del plan Profesional',
-      'Múltiples sedes',
-      'Acceso por API',
-      'SLA garantizado',
-      'Usuarios ilimitados',
-    ],
-  },
-]
+const plans = ref([])
+const loading = ref(true)
+const error = ref('')
 
 function formatCOP(value) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(Number(value) || 0)
 }
+
+onMounted(async () => {
+  try {
+    const { data } = await http.get('/plans')
+    plans.value = (data.data ?? []).map((plan) => ({
+      ...plan,
+      highlighted: plan.code === 'intermedio',
+    }))
+  } catch {
+    error.value = 'No se pudieron cargar los planes. Intenta de nuevo más tarde.'
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -100,7 +67,16 @@ function formatCOP(value) {
         </p>
       </div>
 
-      <div class="mt-10 grid gap-6 lg:grid-cols-3">
+      <div v-if="loading" class="mt-10 flex items-center justify-center gap-2 text-sm text-unal-secondary-light">
+        <Loader2 class="h-4 w-4 animate-spin" />
+        Cargando planes…
+      </div>
+
+      <div v-else-if="error" class="mt-10 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div v-else class="mt-10 grid gap-6 lg:grid-cols-3">
         <article
           v-for="plan in plans"
           :key="plan.code"
@@ -117,19 +93,19 @@ function formatCOP(value) {
           <p class="mt-1 text-sm text-unal-secondary-light">{{ plan.description }}</p>
 
           <div class="mt-5">
-            <p class="text-3xl font-bold text-unal-primary">{{ formatCOP(plan.monthly) }}</p>
+            <p class="text-3xl font-bold text-unal-primary">{{ formatCOP(plan.price_monthly) }}</p>
             <p class="text-xs text-unal-secondary-light">por mes · COP</p>
             <p class="mt-1 text-xs text-unal-secondary-light">
-              o {{ formatCOP(plan.yearly) }} al año
+              o {{ formatCOP(plan.price_yearly) }} al año
             </p>
           </div>
 
           <ul class="mt-6 flex-1 space-y-2.5 text-sm">
-            <li v-for="feature in plan.features" :key="feature" class="flex items-start gap-2 text-unal-secondary">
+            <li v-for="feature in plan.features" :key="feature.code" class="flex items-start gap-2 text-unal-secondary">
               <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-unal-accent/10 text-unal-accent">
                 <Check class="h-3 w-3" />
               </span>
-              {{ feature }}
+              {{ feature.name }}
             </li>
           </ul>
 
@@ -141,7 +117,7 @@ function formatCOP(value) {
             Comenzar con {{ plan.name }}
           </RouterLink>
           <p class="mt-2 text-center text-xs text-unal-secondary-light">
-            {{ plan.trial }} días de prueba
+            {{ plan.trial_days ? `${plan.trial_days} días de prueba` : 'Sin periodo de prueba' }}
           </p>
         </article>
       </div>

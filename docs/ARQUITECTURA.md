@@ -12,10 +12,10 @@ funcional; no se reutiliza.
 | --- | --- |
 | Backend | PHP 8.3+ · Laravel (última estable, 12+) · API REST |
 | Frontend | Vue 3 · Vite · Pinia · Vue Router · Tailwind |
-| Base de datos | MySQL 8 (SQLite permitido en desarrollo) |
+| Base de datos | MySQL 8 |
 | Multi-tenant | Una base de datos compartida con `organization_id` |
 | Autenticación | Laravel Sanctum SPA (cookie HttpOnly + CSRF) |
-| Autorización | `spatie/laravel-permission` + policies + gating por plan |
+| Autorización | `spatie/laravel-permission` + gating por plan |
 | Facturación | Pago manual, con interfaz `PaymentGateway` extensible |
 | Ganado | Multiespecie configurable (especies, razas y tipos de evento) |
 | Datos históricos | No se migran; base nueva con seeds de demostración |
