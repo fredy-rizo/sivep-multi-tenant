@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SaleController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -102,6 +103,17 @@ Route::prefix('v1')->group(function () {
                 Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->middleware('permission:sales.cancel');
 
                 Route::get('reports/farm', [FarmReportController::class, 'summary'])->middleware('permission:reports.view');
+            });
+
+            // Usuarios y roles de la organización (requiere plan multiusuario).
+            Route::middleware('feature:users.multi')->group(function () {
+                Route::get('users/summary', [UserController::class, 'summary'])->middleware('permission:users.manage');
+                Route::get('users', [UserController::class, 'index'])->middleware('permission:users.manage');
+                Route::post('users', [UserController::class, 'store'])->middleware('permission:users.manage');
+                Route::get('users/{user}', [UserController::class, 'show'])->middleware('permission:users.manage');
+                Route::put('users/{user}', [UserController::class, 'update'])->middleware('permission:users.manage');
+                Route::patch('users/{user}', [UserController::class, 'update'])->middleware('permission:users.manage');
+                Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('permission:users.manage');
             });
 
             Route::get('billing/current', [BillingController::class, 'current']);

@@ -1,14 +1,16 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { LogOut, Menu } from '@lucide/vue'
+import { Building2, LogOut, Menu } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import { usePlanStore } from '@/stores/plan'
 
 defineEmits(['toggle-sidebar'])
 
 const route = useRoute()
 const auth = useAuthStore()
+const organization = useOrganizationStore()
 const plan = usePlanStore()
 
 const title = computed(() => route.meta.title ?? 'SIVEP')
@@ -24,10 +26,21 @@ const initials = computed(() =>
     .toUpperCase(),
 )
 
+function changeOrganization(event) {
+  organization.select(event.target.value)
+  plan.reset()
+  window.location.reload()
+}
+
 async function logout() {
   await auth.logout()
+  organization.reset()
   plan.reset()
 }
+
+onMounted(() => {
+  if (auth.isSuperAdmin) organization.ensureSelected()
+})
 </script>
 
 <template>
@@ -48,6 +61,29 @@ async function logout() {
           {{ description }}
         </p>
       </div>
+
+      <label
+        v-if="auth.isSuperAdmin"
+        class="hidden items-center gap-2 rounded-lg border border-unal-border px-2 py-1.5 text-xs text-unal-secondary md:flex"
+        title="Organización activa"
+      >
+        <Building2 class="h-4 w-4 text-unal-primary" />
+        <select
+          class="max-w-52 bg-transparent text-sm font-medium text-unal-secondary focus:outline-none"
+          :value="organization.selectedId ?? ''"
+          aria-label="Organización activa"
+          @change="changeOrganization"
+        >
+          <option v-if="!organization.selectedId" value="" disabled>Selecciona organización</option>
+          <option
+            v-for="item in organization.organizations"
+            :key="item.id"
+            :value="item.id"
+          >
+            {{ item.name }}
+          </option>
+        </select>
+      </label>
 
       <div class="hidden items-center gap-3 sm:flex">
         <div class="flex h-9 w-9 items-center justify-center rounded-full bg-unal-primary/10 text-sm font-semibold text-unal-primary">

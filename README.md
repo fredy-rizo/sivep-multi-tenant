@@ -28,8 +28,9 @@ como referencia funcional.
 | Módulo ganadero (API y servicios) | ✅ |
 | Planes, suscripciones y gating por feature | ✅ |
 | Frontend Vue conectado al API | ✅ |
-| Base de datos local | ⏳ Crear usuario/BD MySQL |
+| Base de datos local MySQL | ✅ `sivep-multi-tennant` |
 | Inventario, ventas, clientes y reportes avanzados | ✅ |
+| Usuarios, roles y selector de organización | ✅ |
 | Tests automatizados | ✅ |
 
 ---
@@ -181,6 +182,9 @@ Autenticación por sesión (Sanctum SPA, cookies HttpOnly + CSRF).
 | GET/POST | `/api/v1/sales` | Listar / registrar ventas |
 | GET | `/api/v1/sales/{id}` | Detalle de una venta |
 | POST | `/api/v1/sales/{id}/cancel` | Anular y restaurar stock |
+| GET/POST | `/api/v1/users` | Listar / crear usuarios de la organización |
+| GET/PUT/DELETE | `/api/v1/users/{id}` | Detalle, edición y baja lógica |
+| GET | `/api/v1/users/summary` | Indicadores del equipo |
 | GET | `/api/v1/reports/*` | Reportes ganaderos y comerciales |
 
 El gating por plan responde **402** cuando falta una feature y los permisos
@@ -210,6 +214,8 @@ responden **403**.
   negocio, API y pruebas del módulo ganadero.
 - [`docs/MODELO-GRANJA.md`](docs/MODELO-GRANJA.md) — inventario, clientes,
   ventas, anulaciones y gating.
+- [`docs/GESTION-USUARIOS.md`](docs/GESTION-USUARIOS.md) — roles, límites por
+  plan y selector de organización del super administrador.
 - [`legacy/README.md`](legacy/README.md) — documentación del sistema anterior.
 
 ---

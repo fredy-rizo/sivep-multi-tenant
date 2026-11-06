@@ -281,7 +281,7 @@ web/src/
 | `/reportes` | Reportes y analítica | UI conectada |
 | `/mi-plan` | Suscripción | UI base |
 | `/admin/monetizacion` | Back office SaaS | Placeholder |
-| `/usuarios` | Usuarios y roles | Placeholder |
+| `/usuarios` | Usuarios y roles | UI conectada |
 | `/planes` | Catálogo público | UI lista |
 
 ---
@@ -308,7 +308,8 @@ web/src/
 | 1 | Laravel + Sanctum + organizaciones + usuarios + roles + multi-tenant |
 | 2 | Módulo ganadero: especies, razas, lotes, animales, eventos, pesos, vacunas |
 | 3 | Núcleo de granja: productos, inventario, clientes, ventas, reportes |
-| 4 | Suscripciones, planes, pagos manuales, cupones y gating || 5 | Portal público, formularios y archivos |
+| 4 | Suscripciones, planes, pagos manuales, cupones y gating |
+| 5 | Portal público, formularios y archivos |
 | 6 | Tiempo real, analítica avanzada y reportes ganaderos |
 | 7 | Endurecimiento, pruebas E2E, seeds, documentación y despliegue |
 

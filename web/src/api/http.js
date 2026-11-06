@@ -22,6 +22,16 @@ export async function fetchCsrfCookie() {
   })
 }
 
+http.interceptors.request.use((config) => {
+  // El super_admin opera sobre la organización que elija en la cabecera.
+  // Para los demás usuarios el backend ignora este encabezado.
+  const organizationId = localStorage.getItem('sivep.organization')
+  if (organizationId) {
+    config.headers['X-Organization-Id'] = organizationId
+  }
+  return config
+})
+
 http.interceptors.response.use(
   (response) => response,
   (error) => {

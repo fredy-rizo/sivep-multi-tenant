@@ -43,12 +43,24 @@ const navigation = [
 
 const adminNavigation = [
   { name: 'Usuarios', to: { name: 'users' }, icon: Settings },
+]
+
+const superAdminNavigation = [
   { name: 'Monetización', to: { name: 'admin-billing' }, icon: BadgeDollarSign },
 ]
 
-const items = computed(() =>
-  auth.isSuperAdmin ? [...navigation, ...adminNavigation] : navigation,
+const canManageUsers = computed(
+  () => auth.isSuperAdmin || (auth.isAdminGranja && plan.hasFeature('users.multi')),
 )
+
+const items = computed(() => {
+  const base = [...navigation]
+
+  if (canManageUsers.value) base.push(adminNavigation[0])
+  if (auth.isSuperAdmin) base.push(superAdminNavigation[0])
+
+  return base
+})
 
 const initials = computed(() => {
   const name = auth.displayName

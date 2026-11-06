@@ -75,7 +75,7 @@ const routes = [
         path: 'usuarios',
         name: 'users',
         component: () => import('@/pages/UsersPage.vue'),
-        meta: { title: 'Usuarios', roles: ['super_admin'] },
+        meta: { title: 'Usuarios', roles: ['super_admin', 'admin_granja'] },
       },
       {
         path: 'admin/monetizacion',
