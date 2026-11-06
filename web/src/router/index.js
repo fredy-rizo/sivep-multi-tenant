@@ -9,6 +9,12 @@ const routes = [
     meta: { title: 'Planes y precios' },
   },
   {
+    path: '/catalogo/:slug',
+    name: 'public-catalog',
+    component: () => import('@/pages/PublicCatalogPage.vue'),
+    meta: { title: 'Catálogo de pedidos', publicPage: true },
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('@/pages/LoginPage.vue'),
@@ -60,6 +66,16 @@ const routes = [
         meta: { title: 'Clientes', description: 'Directorio y comprobantes de pago' },
       },
       {
+        path: 'pedidos',
+        name: 'public-orders',
+        component: () => import('@/pages/PublicOrdersPage.vue'),
+        meta: {
+          title: 'Pedidos públicos',
+          description: 'Pedidos del catálogo en línea y comprobantes',
+          roles: ['super_admin', 'admin_granja', 'veterinario'],
+        },
+      },
+      {
         path: 'reportes',
         name: 'reports',
         component: () => import('@/pages/ReportsPage.vue'),
@@ -101,7 +117,10 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
-  await auth.initialize()
+
+  if (!to.meta.publicPage) {
+    await auth.initialize()
+  }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return {

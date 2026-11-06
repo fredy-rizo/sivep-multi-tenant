@@ -31,6 +31,8 @@ class RoleSeeder extends Seeder
             'reports.view' => 'Ver reportes',
             'billing.manage' => 'Administrar plan y suscripción',
             'users.manage' => 'Administrar usuarios',
+            'orders.view' => 'Ver pedidos públicos',
+            'orders.manage' => 'Aprobar y rechazar pedidos públicos',
             'organizations.manage' => 'Administrar organizaciones',
         ];
 
@@ -45,11 +47,11 @@ class RoleSeeder extends Seeder
                 'events.create', 'events.delete', 'catalogs.manage', 'reports.view',
                 'inventory.view', 'inventory.manage', 'customers.view', 'customers.manage',
                 'sales.view', 'sales.create', 'sales.cancel',
-                'billing.manage', 'users.manage',
+                'billing.manage', 'users.manage', 'orders.view', 'orders.manage',
             ],
             'veterinario' => [
                 'animals.view', 'animals.update', 'events.create', 'events.delete', 'reports.view',
-                'inventory.view', 'customers.view', 'sales.view',
+                'inventory.view', 'customers.view', 'sales.view', 'orders.view',
             ],
             'operario' => [
                 'animals.view', 'animals.create', 'animals.update', 'events.create',

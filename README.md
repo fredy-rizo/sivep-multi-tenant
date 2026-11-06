@@ -31,6 +31,7 @@ como referencia funcional.
 | Base de datos local MySQL | ✅ `sivep-multi-tennant` |
 | Inventario, ventas, clientes y reportes avanzados | ✅ |
 | Usuarios, roles y selector de organización | ✅ |
+| Portal público de pedidos y comprobantes | ✅ |
 | Tests automatizados | ✅ |
 
 ---
@@ -185,6 +186,13 @@ Autenticación por sesión (Sanctum SPA, cookies HttpOnly + CSRF).
 | GET/POST | `/api/v1/users` | Listar / crear usuarios de la organización |
 | GET/PUT/DELETE | `/api/v1/users/{id}` | Detalle, edición y baja lógica |
 | GET | `/api/v1/users/summary` | Indicadores del equipo |
+| GET | `/api/v1/public/{slug}/catalog` | Catálogo público por organización |
+| POST | `/api/v1/public/{slug}/orders` | Crear pedido público con comprobante |
+| GET | `/api/v1/public-orders` | Bandeja de pedidos recibidos |
+| GET | `/api/v1/public-orders/summary` | Indicadores de pedidos públicos |
+| POST | `/api/v1/public-orders/{id}/approve` | Aprobar pedido y generar venta |
+| POST | `/api/v1/public-orders/{id}/reject` | Rechazar pedido con motivo |
+| GET | `/api/v1/public-orders/{id}/receipt` | Descargar comprobante privado |
 | GET | `/api/v1/reports/*` | Reportes ganaderos y comerciales |
 
 El gating por plan responde **402** cuando falta una feature y los permisos
@@ -216,6 +224,8 @@ responden **403**.
   ventas, anulaciones y gating.
 - [`docs/GESTION-USUARIOS.md`](docs/GESTION-USUARIOS.md) — roles, límites por
   plan y selector de organización del super administrador.
+- [`docs/PORTAL-PUBLICO.md`](docs/PORTAL-PUBLICO.md) — catálogo público,
+  pedidos, comprobantes, aprobación y rechazo.
 - [`legacy/README.md`](legacy/README.md) — documentación del sistema anterior.
 
 ---
@@ -227,7 +237,7 @@ responden **403**.
 3. Módulo ganadero completo. ✅
 4. Núcleo de granja: productos, inventario, clientes, ventas y reportes. ✅
 5. Suscripciones, planes, pagos y gating. ✅ (pago manual)
-6. Portal público, formularios y archivos. ⏳
+6. Portal público, formularios y archivos. ✅
 7. Tiempo real, analítica avanzada y reportes ganaderos. ⏳
 8. Pruebas E2E, seeds, documentación y despliegue. 🟡
 

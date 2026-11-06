@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LogOut,
   Package,
+  ClipboardList,
   Settings,
   ShoppingCart,
   Users,
@@ -45,6 +46,8 @@ const adminNavigation = [
   { name: 'Usuarios', to: { name: 'users' }, icon: Settings },
 ]
 
+const ordersNavigation = { name: 'Pedidos', to: { name: 'public-orders' }, icon: ClipboardList }
+
 const superAdminNavigation = [
   { name: 'Monetización', to: { name: 'admin-billing' }, icon: BadgeDollarSign },
 ]
@@ -53,9 +56,16 @@ const canManageUsers = computed(
   () => auth.isSuperAdmin || (auth.isAdminGranja && plan.hasFeature('users.multi')),
 )
 
+const canViewOrders = computed(
+  () =>
+    auth.isSuperAdmin ||
+    ((auth.user?.permissions ?? []).includes('orders.view') && plan.hasFeature('public.form')),
+)
+
 const items = computed(() => {
   const base = [...navigation]
 
+  if (canViewOrders.value) base.splice(5, 0, ordersNavigation)
   if (canManageUsers.value) base.push(adminNavigation[0])
   if (auth.isSuperAdmin) base.push(superAdminNavigation[0])
 

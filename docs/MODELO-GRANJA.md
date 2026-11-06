@@ -59,6 +59,28 @@ snapshot.
 5. **Stock inicial**: al crear un producto con stock se registra una entrada
    `Stock inicial`, nunca se escribe el stock directamente.
 
+## Pedidos públicos
+
+El portal público permite que un cliente sin sesión arme un pedido desde
+`/catalogo/:slug` y adjunte su comprobante. Los pedidos **no descuentan stock**
+al recibirse: se descuentan al aprobarlos, cuando se convierten en venta.
+
+- `public_orders`: código por organización (`PED-YYYYMMDD-NNNN`), datos del
+  cliente, medio de pago, estado (`pendiente`, `aprobado`, `rechazado`), total,
+  comprobante privado y trazabilidad de revisión.
+- `public_order_items`: snapshot de producto, cantidad, precio unitario y total
+  de línea.
+- El comprobante se guarda en `storage/app/private` y solo se descarga desde la
+  API autenticada.
+- Aprobar crea o reutiliza el cliente por documento y genera la venta con
+  `SaleService` (descuento de inventario incluido).
+- Rechazar exige un motivo y no altera el inventario.
+- Requiere la feature `public.form` (plan Avanzado), permisos `orders.view` y
+  `orders.manage`, y limita la creación pública a 8 pedidos por minuto por IP y
+  organización.
+
+Ver [`PORTAL-PUBLICO.md`](PORTAL-PUBLICO.md) para el detalle funcional.
+
 ## Endpoints
 
 | Método | Ruta | Permiso |
@@ -82,6 +104,7 @@ snapshot.
 | `inventory.core` | — | — | ✅ |
 | `clients.core` | — | — | ✅ |
 | `sales.core` | — | — | ✅ |
+| `public.form` | — | — | ✅ |
 
 Si el plan no incluye la feature, la API responde **402** con
 `code: FEATURE_NOT_INCLUDED`.

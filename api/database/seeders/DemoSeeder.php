@@ -10,6 +10,8 @@ use App\Models\Lot;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\Product;
+use App\Models\PublicOrder;
+use App\Models\PublicOrderItem;
 use App\Models\Sale;
 use App\Models\Species;
 use App\Models\Subscription;
@@ -21,6 +23,7 @@ use App\Services\Livestock\AnimalEventService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class DemoSeeder extends Seeder
 {
@@ -217,6 +220,7 @@ class DemoSeeder extends Seeder
         }
 
         $this->seedFarm($organization, $owner, $operator);
+        $this->seedPublicOrder($organization);
     }
 
     private function seedFarm(Organization $organization, User $owner, User $operator): void
@@ -335,6 +339,82 @@ class DemoSeeder extends Seeder
                 ]],
                 'notes' => 'Venta de animal de demostración.',
             ], $owner->id);
+        }
+    }
+
+    private function seedPublicOrder(Organization $organization): void
+    {
+        if (PublicOrder::query()
+            ->withoutGlobalScope('organization')
+            ->where('organization_id', $organization->id)
+            ->exists()) {
+            return;
+        }
+
+        $milk = Product::query()
+            ->withoutGlobalScope('organization')
+            ->where('organization_id', $organization->id)
+            ->where('sku', 'LECHE-01')
+            ->first();
+
+        $cheese = Product::query()
+            ->withoutGlobalScope('organization')
+            ->where('organization_id', $organization->id)
+            ->where('sku', 'QUESO-01')
+            ->first();
+
+        if (! $milk || ! $cheese) {
+            return;
+        }
+
+        $code = 'PED-'.now()->format('Ymd').'-0001';
+        $receiptPath = "public-orders/{$organization->id}/demo-receipt.png";
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=');
+        Storage::disk('local')->put($receiptPath, $png);
+
+        $lines = [
+            ['product' => $milk, 'quantity' => 12],
+            ['product' => $cheese, 'quantity' => 2],
+        ];
+
+        $total = 0;
+
+        foreach ($lines as $line) {
+            $total += (float) $line['product']->price * $line['quantity'];
+        }
+
+        $order = PublicOrder::query()
+            ->withoutGlobalScope('organization')
+            ->create([
+                'organization_id' => $organization->id,
+                'code' => $code,
+                'customer_name' => 'María Fernanda López',
+                'document_type' => 'CC',
+                'document_number' => '1045678901',
+                'phone' => '+57 310 555 1020',
+                'email' => 'maria.lopez@example.com',
+                'address' => 'Calle 24 # 8-15',
+                'city' => 'Montería',
+                'payment_method' => 'nequi',
+                'status' => 'pendiente',
+                'total' => round($total, 2),
+                'notes' => 'Pedido de demostración recibido por el catálogo público.',
+                'receipt_path' => $receiptPath,
+                'receipt_name' => 'comprobante-demo.png',
+            ]);
+
+        foreach ($lines as $line) {
+            PublicOrderItem::query()
+                ->withoutGlobalScope('organization')
+                ->create([
+                    'organization_id' => $organization->id,
+                    'public_order_id' => $order->id,
+                    'product_id' => $line['product']->id,
+                    'description' => $line['product']->name,
+                    'quantity' => $line['quantity'],
+                    'unit_price' => (float) $line['product']->price,
+                    'line_total' => round((float) $line['product']->price * $line['quantity'], 2),
+                ]);
         }
     }
 }

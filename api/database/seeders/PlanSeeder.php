@@ -20,6 +20,7 @@ class PlanSeeder extends Seeder
             ['code' => 'sales.core', 'name' => 'Ventas', 'category' => 'Comercial', 'kind' => 'boolean', 'sort_order' => 60],
             ['code' => 'clients.core', 'name' => 'Clientes', 'category' => 'Comercial', 'kind' => 'boolean', 'sort_order' => 70],
             ['code' => 'users.multi', 'name' => 'Usuarios ilimitados', 'category' => 'Plataforma', 'kind' => 'boolean', 'sort_order' => 80],
+            ['code' => 'public.form', 'name' => 'Portal público de pedidos', 'category' => 'Comercial', 'kind' => 'boolean', 'sort_order' => 90],
         ];
 
         foreach ($features as $feature) {
@@ -58,7 +59,7 @@ class PlanSeeder extends Seeder
                 'features' => [
                     'livestock.core', 'livestock.weights', 'livestock.vaccines',
                     'livestock.reports', 'inventory.core', 'sales.core',
-                    'clients.core', 'users.multi',
+                    'clients.core', 'users.multi', 'public.form',
                 ],
             ],
         ];

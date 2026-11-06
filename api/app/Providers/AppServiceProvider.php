@@ -30,5 +30,13 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(10)->by($key);
         });
+
+        // Formulario público: limita por IP y organización para frenar spam
+        // sin afectar a los demás tenants.
+        RateLimiter::for('public-orders', function (Request $request) {
+            $key = $request->ip().'|'.(string) $request->route('slug');
+
+            return Limit::perMinute(8)->by($key);
+        });
     }
 }

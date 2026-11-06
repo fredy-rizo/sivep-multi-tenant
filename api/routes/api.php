@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\V1\FarmReportController;
 use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\PublicCatalogController;
+use App\Http\Controllers\Api\V1\PublicOrderController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SaleController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -27,6 +29,12 @@ Route::prefix('v1')->group(function () {
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
     Route::get('plans', [BillingController::class, 'plans']);
+
+    // Portal público: sin sesión, resuelto por slug de la organización.
+    Route::prefix('public/{slug}')->group(function () {
+        Route::get('catalog', [PublicCatalogController::class, 'show']);
+        Route::post('orders', [PublicCatalogController::class, 'store'])->middleware('throttle:public-orders');
+    });
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('auth/me', [AuthController::class, 'me']);
@@ -103,6 +111,16 @@ Route::prefix('v1')->group(function () {
                 Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->middleware('permission:sales.cancel');
 
                 Route::get('reports/farm', [FarmReportController::class, 'summary'])->middleware('permission:reports.view');
+            });
+
+            // Pedidos recibidos por el portal público (plan Avanzado).
+            Route::middleware('feature:public.form')->group(function () {
+                Route::get('public-orders/summary', [PublicOrderController::class, 'summary'])->middleware('permission:orders.view');
+                Route::get('public-orders', [PublicOrderController::class, 'index'])->middleware('permission:orders.view');
+                Route::get('public-orders/{publicOrder}', [PublicOrderController::class, 'show'])->middleware('permission:orders.view');
+                Route::get('public-orders/{publicOrder}/receipt', [PublicOrderController::class, 'receipt'])->middleware('permission:orders.view');
+                Route::post('public-orders/{publicOrder}/approve', [PublicOrderController::class, 'approve'])->middleware('permission:orders.manage');
+                Route::post('public-orders/{publicOrder}/reject', [PublicOrderController::class, 'reject'])->middleware('permission:orders.manage');
             });
 
             // Usuarios y roles de la organización (requiere plan multiusuario).

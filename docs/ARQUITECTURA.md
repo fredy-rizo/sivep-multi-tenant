@@ -278,6 +278,8 @@ web/src/
 | `/inventario` | Stock y movimientos | UI conectada |
 | `/ventas` | Ventas | UI conectada |
 | `/clientes` | Clientes | UI conectada |
+| `/pedidos` | Pedidos públicos y comprobantes | UI conectada |
+| `/catalogo/:slug` | Catálogo público sin sesión | UI conectada |
 | `/reportes` | Reportes y analítica | UI conectada |
 | `/mi-plan` | Suscripción | UI base |
 | `/admin/monetizacion` | Back office SaaS | Placeholder |
