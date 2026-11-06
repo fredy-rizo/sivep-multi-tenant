@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import {
   BadgeDollarSign,
   BarChart3,
@@ -18,6 +18,7 @@ import {
 } from '@lucide/vue'
 import LogoShield from '@/components/LogoShield.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useOrganizationStore } from '@/stores/organization'
 import { usePlanStore } from '@/stores/plan'
 
 defineProps({
@@ -29,7 +30,9 @@ defineProps({
 
 const emit = defineEmits(['close'])
 
+const router = useRouter()
 const auth = useAuthStore()
+const organization = useOrganizationStore()
 const plan = usePlanStore()
 
 const navigation = [
@@ -85,8 +88,10 @@ const initials = computed(() => {
 
 async function handleLogout() {
   await auth.logout()
+  organization.reset()
   plan.reset()
   emit('close')
+  await router.replace({ name: 'login' })
 }
 </script>
 

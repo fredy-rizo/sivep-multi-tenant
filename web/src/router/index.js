@@ -3,10 +3,16 @@ import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   {
+    path: '/',
+    name: 'home',
+    component: () => import('@/pages/HomePage.vue'),
+    meta: { title: 'Gestión ganadera y de granja', publicPage: true },
+  },
+  {
     path: '/planes',
     name: 'plans',
     component: () => import('@/pages/PlansPage.vue'),
-    meta: { title: 'Planes y precios' },
+    meta: { title: 'Planes y precios', publicPage: true },
   },
   {
     path: '/catalogo/:slug',
@@ -21,7 +27,7 @@ const routes = [
     meta: { guestOnly: true, title: 'Iniciar sesión' },
   },
   {
-    path: '/',
+    path: '/app',
     component: () => import('@/layouts/AppLayout.vue'),
     meta: { requiresAuth: true },
     children: [
@@ -101,11 +107,23 @@ const routes = [
       },
     ],
   },
+  // Compatibilidad con enlaces antiguos del panel.
+  { path: '/dashboard', redirect: '/app/dashboard' },
+  { path: '/ganado', redirect: '/app/ganado' },
+  { path: '/ganado/:id', redirect: (to) => ({ name: 'animal-detail', params: { id: to.params.id } }) },
+  { path: '/inventario', redirect: '/app/inventario' },
+  { path: '/ventas', redirect: '/app/ventas' },
+  { path: '/clientes', redirect: '/app/clientes' },
+  { path: '/pedidos', redirect: '/app/pedidos' },
+  { path: '/reportes', redirect: '/app/reportes' },
+  { path: '/mi-plan', redirect: '/app/mi-plan' },
+  { path: '/usuarios', redirect: '/app/usuarios' },
+  { path: '/admin/monetizacion', redirect: '/app/admin/monetizacion' },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/pages/NotFoundPage.vue'),
-    meta: { title: 'Página no encontrada' },
+    meta: { title: 'Página no encontrada', publicPage: true },
   },
 ]
 

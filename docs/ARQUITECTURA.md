@@ -271,19 +271,20 @@ web/src/
 
 | Ruta | Módulo | Estado |
 | --- | --- | --- |
+| `/` | Página principal: propuesta, módulos, planes, clientes, FAQ e información | UI conectada |
 | `/login` | Autenticación | UI lista |
-| `/dashboard` | Resumen operativo | UI base |
-| `/ganado` | Inventario animal | UI demo |
-| `/ganado/:id` | Ficha del animal | UI demo |
-| `/inventario` | Stock y movimientos | UI conectada |
-| `/ventas` | Ventas | UI conectada |
-| `/clientes` | Clientes | UI conectada |
-| `/pedidos` | Pedidos públicos y comprobantes | UI conectada |
+| `/app/dashboard` | Resumen operativo | UI base |
+| `/app/ganado` | Inventario animal | UI demo |
+| `/app/ganado/:id` | Ficha del animal | UI demo |
+| `/app/inventario` | Stock y movimientos | UI conectada |
+| `/app/ventas` | Ventas | UI conectada |
+| `/app/clientes` | Clientes | UI conectada |
+| `/app/pedidos` | Pedidos públicos y comprobantes | UI conectada |
 | `/catalogo/:slug` | Catálogo público sin sesión | UI conectada |
-| `/reportes` | Reportes y analítica | UI conectada |
-| `/mi-plan` | Suscripción | UI base |
-| `/admin/monetizacion` | Back office SaaS | Placeholder |
-| `/usuarios` | Usuarios y roles | UI conectada |
+| `/app/reportes` | Reportes y analítica | UI conectada |
+| `/app/mi-plan` | Suscripción | UI base |
+| `/app/admin/monetizacion` | Back office SaaS | Placeholder |
+| `/app/usuarios` | Usuarios y roles | UI conectada |
 | `/planes` | Catálogo público | UI lista |
 
 ---

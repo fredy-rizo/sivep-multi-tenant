@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { Building2, LogOut, Menu } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useOrganizationStore } from '@/stores/organization'
@@ -9,6 +9,7 @@ import { usePlanStore } from '@/stores/plan'
 defineEmits(['toggle-sidebar'])
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 const organization = useOrganizationStore()
 const plan = usePlanStore()
@@ -36,6 +37,7 @@ async function logout() {
   await auth.logout()
   organization.reset()
   plan.reset()
+  await router.replace({ name: 'login' })
 }
 
 onMounted(() => {

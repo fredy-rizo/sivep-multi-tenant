@@ -14,7 +14,7 @@ import { Compass } from '@lucide/vue'
       <p class="mt-2 text-sm text-unal-secondary-light">
         La ruta que buscas no existe o fue movida durante la reescritura.
       </p>
-      <RouterLink to="/dashboard" class="btn-primary mt-6">Ir al dashboard</RouterLink>
+      <RouterLink to="/" class="btn-primary mt-6">Volver al inicio</RouterLink>
     </div>
   </div>
 </template>

@@ -376,13 +376,13 @@ GET /api/v1/reports/livestock/export          # CSV/Excel según plan
 
 | Vista | Contenido |
 | --- | --- |
-| `/ganado` | KPIs, búsqueda, filtros, tabla paginada, alta de animal |
-| `/ganado/:id` | Ficha, genealogía, KPIs, pestañas de resumen, pesos, vacunas y eventos |
-| `/ganado/:id/evento/nuevo` | Formulario contextual según tipo de evento |
-| `/ganado/reportes` | Peso promedio, GMD, calendario sanitario y reproducción |
-| `/ganado/catalogos` | Especies, razas, potreros, vacunas y tipos de evento |
+| `/app/ganado` | KPIs, búsqueda, filtros, tabla paginada, alta de animal |
+| `/app/ganado/:id` | Ficha, genealogía, KPIs, pestañas de resumen, pesos, vacunas y eventos |
+| `/app/ganado/:id/evento/nuevo` | Formulario contextual según tipo de evento |
+| `/app/ganado/reportes` | Peso promedio, GMD, calendario sanitario y reproducción |
+| `/app/ganado/catalogos` | Especies, razas, potreros, vacunas y tipos de evento |
 
-La UI actual de `web/` ya refleja `/ganado` y `/ganado/:id` con datos de ejemplo.
+La UI actual de `web/` ya refleja `/app/ganado` y `/app/ganado/:id` con datos de ejemplo.
 
 ---
 
