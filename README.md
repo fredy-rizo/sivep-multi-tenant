@@ -19,20 +19,20 @@ como referencia funcional.
 
 ## Estado actual
 
-| Componente | Estado |
-| --- | --- |
-| Repositorio y control de versiones | ✅ |
-| Preservación del legado | ✅ `legacy/` |
-| Backend Laravel + Sanctum + permisos | ✅ |
-| Multi-tenant (`organization_id`, scope y middleware) | ✅ |
-| Módulo ganadero (API y servicios) | ✅ |
-| Planes, suscripciones y gating por feature | ✅ |
-| Frontend Vue conectado al API | ✅ |
-| Base de datos local MySQL | ✅ `sivep-multi-tennant` |
-| Inventario, ventas, clientes y reportes avanzados | ✅ |
-| Usuarios, roles y selector de organización | ✅ |
-| Portal público de pedidos y comprobantes | ✅ |
-| Tests automatizados | ✅ |
+| Componente                                           | Estado                   |
+| ---------------------------------------------------- | ------------------------ |
+| Repositorio y control de versiones                   | ✅                       |
+| Preservación del legado                              | ✅ `legacy/`             |
+| Backend Laravel + Sanctum + permisos                 | ✅                       |
+| Multi-tenant (`organization_id`, scope y middleware) | ✅                       |
+| Módulo ganadero (API y servicios)                    | ✅                       |
+| Planes, suscripciones y gating por feature           | ✅                       |
+| Frontend Vue conectado al API                        | ✅                       |
+| Base de datos local MySQL                            | ✅ `sivep-multi-tennant` |
+| Inventario, ventas, clientes y reportes avanzados    | ✅                       |
+| Usuarios, roles y selector de organización           | ✅                       |
+| Portal público de pedidos y comprobantes             | ✅                       |
+| Tests automatizados                                  | ✅                       |
 
 ---
 
@@ -115,7 +115,8 @@ credenciales se configuran en `api/phpunit.xml`.
 ```bash
 cd api
 php artisan migrate --seed
-php artisan serve   # http://localhost:8000
+php artisan serve --host=localhost --port=8000
+
 ```
 
 Si necesitas reinstalar dependencias desde cero:
@@ -142,12 +143,12 @@ Vite hace proxy de `/api`, `/sanctum` y `/storage` hacia `http://localhost:8000`
 Los seeders crean una organización demo (`Finca La Esperanza`) con datos
 ganaderos multiespecie.
 
-| Rol | Correo | Contraseña |
-| --- | --- | --- |
-| Super administrador | `admin@sivep.local` | `Admin123*` |
-| Administrador de granja | `dueno@finca.local` | `Demo123*` |
-| Veterinario | `veterinario@finca.local` | `Demo123*` |
-| Operario | `operario@finca.local` | `Demo123*` |
+| Rol                     | Correo                    | Contraseña  |
+| ----------------------- | ------------------------- | ----------- |
+| Super administrador     | `admin@sivep.local`       | `Admin123*` |
+| Administrador de granja | `dueno@finca.local`       | `Demo123*`  |
+| Veterinario             | `veterinario@finca.local` | `Demo123*`  |
+| Operario                | `operario@finca.local`    | `Demo123*`  |
 
 > El `super_admin` no pertenece a una organización; para usar rutas de negocio
 > debe enviar `X-Organization-Id`. El frontend de soporte para ese selector es
@@ -159,41 +160,41 @@ ganaderos multiespecie.
 
 Autenticación por sesión (Sanctum SPA, cookies HttpOnly + CSRF).
 
-| Método | Ruta | Descripción |
-| --- | --- | --- |
-| POST | `/api/v1/auth/login` | Iniciar sesión |
-| GET | `/api/v1/auth/me` | Usuario autenticado |
-| POST | `/api/v1/auth/logout` | Cerrar sesión |
-| GET | `/api/v1/plans` | Planes y features (público) |
-| GET | `/api/v1/billing/current` | Suscripción actual |
-| POST | `/api/v1/billing/change-plan` | Cambiar de plan |
-| POST | `/api/v1/billing/cancel` | Cancelar al final del periodo |
-| GET/POST | `/api/v1/animals` | Listar / crear animales |
-| GET/PUT/DELETE | `/api/v1/animals/{id}` | Detalle, edición y baja lógica |
-| POST | `/api/v1/animals/{id}/events` | Registrar peso, vacuna o evento |
-| GET | `/api/v1/events` | Listar eventos con filtros |
-| GET | `/api/v1/catalogs/*` | Especies, razas, lotes, vacunas y tipos |
-| GET/POST | `/api/v1/products` | Listar / crear productos |
-| GET/PUT/DELETE | `/api/v1/products/{id}` | Detalle, edición y baja lógica |
-| GET/POST | `/api/v1/inventory/movements` | Movimientos de stock |
-| GET | `/api/v1/inventory/summary` | Resumen y alertas de stock |
-| GET/POST | `/api/v1/customers` | Listar / crear clientes |
-| GET/PUT/DELETE | `/api/v1/customers/{id}` | Detalle, edición y baja lógica |
-| GET | `/api/v1/customers/summary` | Indicadores de clientes |
-| GET/POST | `/api/v1/sales` | Listar / registrar ventas |
-| GET | `/api/v1/sales/{id}` | Detalle de una venta |
-| POST | `/api/v1/sales/{id}/cancel` | Anular y restaurar stock |
-| GET/POST | `/api/v1/users` | Listar / crear usuarios de la organización |
-| GET/PUT/DELETE | `/api/v1/users/{id}` | Detalle, edición y baja lógica |
-| GET | `/api/v1/users/summary` | Indicadores del equipo |
-| GET | `/api/v1/public/{slug}/catalog` | Catálogo público por organización |
-| POST | `/api/v1/public/{slug}/orders` | Crear pedido público con comprobante |
-| GET | `/api/v1/public-orders` | Bandeja de pedidos recibidos |
-| GET | `/api/v1/public-orders/summary` | Indicadores de pedidos públicos |
-| POST | `/api/v1/public-orders/{id}/approve` | Aprobar pedido y generar venta |
-| POST | `/api/v1/public-orders/{id}/reject` | Rechazar pedido con motivo |
-| GET | `/api/v1/public-orders/{id}/receipt` | Descargar comprobante privado |
-| GET | `/api/v1/reports/*` | Reportes ganaderos y comerciales |
+| Método         | Ruta                                 | Descripción                                |
+| -------------- | ------------------------------------ | ------------------------------------------ |
+| POST           | `/api/v1/auth/login`                 | Iniciar sesión                             |
+| GET            | `/api/v1/auth/me`                    | Usuario autenticado                        |
+| POST           | `/api/v1/auth/logout`                | Cerrar sesión                              |
+| GET            | `/api/v1/plans`                      | Planes y features (público)                |
+| GET            | `/api/v1/billing/current`            | Suscripción actual                         |
+| POST           | `/api/v1/billing/change-plan`        | Cambiar de plan                            |
+| POST           | `/api/v1/billing/cancel`             | Cancelar al final del periodo              |
+| GET/POST       | `/api/v1/animals`                    | Listar / crear animales                    |
+| GET/PUT/DELETE | `/api/v1/animals/{id}`               | Detalle, edición y baja lógica             |
+| POST           | `/api/v1/animals/{id}/events`        | Registrar peso, vacuna o evento            |
+| GET            | `/api/v1/events`                     | Listar eventos con filtros                 |
+| GET            | `/api/v1/catalogs/*`                 | Especies, razas, lotes, vacunas y tipos    |
+| GET/POST       | `/api/v1/products`                   | Listar / crear productos                   |
+| GET/PUT/DELETE | `/api/v1/products/{id}`              | Detalle, edición y baja lógica             |
+| GET/POST       | `/api/v1/inventory/movements`        | Movimientos de stock                       |
+| GET            | `/api/v1/inventory/summary`          | Resumen y alertas de stock                 |
+| GET/POST       | `/api/v1/customers`                  | Listar / crear clientes                    |
+| GET/PUT/DELETE | `/api/v1/customers/{id}`             | Detalle, edición y baja lógica             |
+| GET            | `/api/v1/customers/summary`          | Indicadores de clientes                    |
+| GET/POST       | `/api/v1/sales`                      | Listar / registrar ventas                  |
+| GET            | `/api/v1/sales/{id}`                 | Detalle de una venta                       |
+| POST           | `/api/v1/sales/{id}/cancel`          | Anular y restaurar stock                   |
+| GET/POST       | `/api/v1/users`                      | Listar / crear usuarios de la organización |
+| GET/PUT/DELETE | `/api/v1/users/{id}`                 | Detalle, edición y baja lógica             |
+| GET            | `/api/v1/users/summary`              | Indicadores del equipo                     |
+| GET            | `/api/v1/public/{slug}/catalog`      | Catálogo público por organización          |
+| POST           | `/api/v1/public/{slug}/orders`       | Crear pedido público con comprobante       |
+| GET            | `/api/v1/public-orders`              | Bandeja de pedidos recibidos               |
+| GET            | `/api/v1/public-orders/summary`      | Indicadores de pedidos públicos            |
+| POST           | `/api/v1/public-orders/{id}/approve` | Aprobar pedido y generar venta             |
+| POST           | `/api/v1/public-orders/{id}/reject`  | Rechazar pedido con motivo                 |
+| GET            | `/api/v1/public-orders/{id}/receipt` | Descargar comprobante privado              |
+| GET            | `/api/v1/reports/*`                  | Reportes ganaderos y comerciales           |
 
 El gating por plan responde **402** cuando falta una feature y los permisos
 responden **403**.
@@ -202,15 +203,15 @@ responden **403**.
 
 ## Decisiones de arquitectura
 
-| Tema | Decisión |
-| --- | --- |
-| Multi-tenant | Una BD con `organization_id` + global scope |
-| Autenticación | Sanctum SPA (cookies HttpOnly + CSRF) |
-| Autorización | Roles/permisos + gating por plan |
-| Facturación | Pago manual con interfaz `PaymentGateway` extensible |
-| Ganado | Multiespecie configurable |
-| Datos históricos | No se migran; seeds de demostración |
-| Realtime | Laravel Reverb o SSE (fase posterior) |
+| Tema             | Decisión                                             |
+| ---------------- | ---------------------------------------------------- |
+| Multi-tenant     | Una BD con `organization_id` + global scope          |
+| Autenticación    | Sanctum SPA (cookies HttpOnly + CSRF)                |
+| Autorización     | Roles/permisos + gating por plan                     |
+| Facturación      | Pago manual con interfaz `PaymentGateway` extensible |
+| Ganado           | Multiespecie configurable                            |
+| Datos históricos | No se migran; seeds de demostración                  |
+| Realtime         | Laravel Reverb o SSE (fase posterior)                |
 
 ---
 
