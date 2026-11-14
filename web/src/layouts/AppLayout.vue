@@ -51,7 +51,7 @@ onMounted(() => {
       </main>
 
       <footer class="border-t border-unal-border px-6 py-4 text-center text-xs text-unal-secondary-light">
-        SIVEP · Granja El Cairo · Universidad Nacional de Colombia — Sede Orinoquía
+        SIVEP Agro · Granja El Cairo · Un producto de SIVEP Tech
       </footer>
     </div>
   </div>

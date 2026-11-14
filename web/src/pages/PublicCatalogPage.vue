@@ -218,7 +218,7 @@ onMounted(loadCatalog)
             <ShoppingBasket class="h-5 w-5" />
           </div>
           <div class="leading-tight">
-            <p class="text-lg font-bold text-unal-primary">SIVEP</p>
+            <p class="text-lg font-bold text-unal-primary">SIVEP Agro</p>
             <p class="text-[11px] font-medium uppercase tracking-widest text-unal-secondary-light">
               Catálogo de pedidos
             </p>
@@ -528,7 +528,7 @@ onMounted(loadCatalog)
     </main>
 
     <footer class="border-t border-unal-border bg-white px-4 py-5 text-center text-xs text-unal-secondary-light">
-      SIVEP · Catálogo público · Universidad Nacional de Colombia — Sede Orinoquía
+      SIVEP Agro · Catálogo público · Un producto de SIVEP Tech
     </footer>
   </div>
 </template>

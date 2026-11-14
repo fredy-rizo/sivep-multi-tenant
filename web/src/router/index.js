@@ -159,7 +159,7 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
-  const base = 'SIVEP'
+  const base = 'SIVEP Agro'
   document.title = to.meta.title ? `${to.meta.title} · ${base}` : base
 })
 

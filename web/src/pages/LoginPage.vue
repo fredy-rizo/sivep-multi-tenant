@@ -44,16 +44,16 @@ async function handleSubmit() {
           <LogoShield class="h-12 w-12" />
           <div>
             <p class="text-2xl font-bold tracking-tight">SIVEP</p>
-            <p class="text-xs uppercase tracking-[0.25em] text-white/70">Gestión integral</p>
+            <p class="text-xs uppercase tracking-[0.25em] text-white/70">Agro</p>
           </div>
         </div>
 
         <h1 class="mt-16 max-w-md text-4xl font-semibold leading-tight">
-          Inventario, ventas y producción ganadera en un solo lugar.
+          Todo tu campo, organizado en un solo lugar.
         </h1>
         <p class="mt-4 max-w-md text-sm leading-relaxed text-white/80">
-          Una plataforma multi-organización para la Granja El Cairo: trazabilidad
-          animal, control sanitario, inventario, ventas y analítica.
+          SIVEP Agro reúne el ganado, el inventario, las ventas y los pedidos en
+          línea de tu organización en una sola plataforma multi-tenant.
         </p>
       </div>
 
@@ -69,7 +69,7 @@ async function handleSubmit() {
       </div>
 
       <p class="relative text-xs text-white/60">
-        Universidad Nacional de Colombia — Sede Orinoquía
+        Un producto de SIVEP Tech
       </p>
     </section>
 
@@ -81,7 +81,7 @@ async function handleSubmit() {
           <div>
             <p class="text-xl font-bold text-unal-primary">SIVEP</p>
             <p class="text-[10px] uppercase tracking-[0.2em] text-unal-secondary-light">
-              Gestión integral
+              Agro
             </p>
           </div>
         </div>

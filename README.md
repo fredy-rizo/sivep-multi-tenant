@@ -1,7 +1,11 @@
-# SIVEP 2.0
+# SIVEP Agro
 
-Sistema de inventario, ventas, producción y gestión ganadera multi-organización
-para la Granja El Cairo (Universidad Nacional de Colombia — Sede Orinoquía).
+**SIVEP Agro** es el sistema de gestión integral para fincas y granjas de
+**SIVEP Tech**: ganado, inventario, ventas, clientes, reportes y un portal
+público de pedidos, con aislamiento multi-organización.
+
+Nació como proyecto para la Granja El Cairo (Universidad Nacional de Colombia —
+Sede Orinoquía) y hoy se presenta como producto de SIVEP Tech.
 
 Esta es una **reescritura completa** del sistema anterior:
 

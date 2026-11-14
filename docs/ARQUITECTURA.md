@@ -1,4 +1,6 @@
-# Arquitectura — SIVEP 2.0
+# Arquitectura — SIVEP Agro
+
+SIVEP Agro es el sistema de gestión integral para fincas y granjas de SIVEP Tech.
 
 Documento de referencia de la reescritura. Resume decisiones, estructura,
 convenciones y fases. El código anterior vive en `legacy/` solo como referencia

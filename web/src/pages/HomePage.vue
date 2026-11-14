@@ -101,19 +101,19 @@ const clientProfiles = [
 
 const faqs = [
   {
-    question: '¿Qué es SIVEP?',
+    question: '¿Qué es SIVEP Agro?',
     answer:
-      'SIVEP es una plataforma de gestión integral para organizaciones agropecuarias. Reúne ganado, inventario, clientes, ventas, reportes y un portal público de pedidos.',
+      'SIVEP Agro es la plataforma de gestión integral para organizaciones agropecuarias. Reúne ganado, inventario, clientes, ventas, reportes y un portal público de pedidos.',
   },
   {
-    question: '¿Puedo usar SIVEP con varias organizaciones?',
+    question: '¿Puedo usar SIVEP Agro con varias organizaciones?',
     answer:
       'Sí. El modelo es multi-tenant: cada organización tiene sus propios datos, usuarios, plan y catálogo. El super administrador puede dar soporte seleccionando una organización sin mezclar información.',
   },
   {
     question: '¿Necesito instalar algo?',
     answer:
-      'No. SIVEP funciona en el navegador. También ofrecemos licencia on-premise para organizaciones que necesitan instalar la plataforma en sus propios servidores.',
+      'No. SIVEP Agro funciona en el navegador. También ofrecemos licencia on-premise para organizaciones que necesitan instalar la plataforma en sus propios servidores.',
   },
   {
     question: '¿Cómo funcionan los planes?',
@@ -169,7 +169,7 @@ onMounted(async () => {
           <div class="leading-tight">
             <span class="block text-lg font-bold text-unal-primary">SIVEP</span>
             <span class="block text-[10px] font-medium uppercase tracking-widest text-unal-secondary-light">
-              Gestión integral
+              Agro
             </span>
           </div>
         </RouterLink>
@@ -230,7 +230,7 @@ onMounted(async () => {
               Todo tu campo, organizado en un solo lugar.
             </h1>
             <p class="mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-              SIVEP conecta el ganado, el inventario, los clientes, las ventas y los
+              SIVEP Agro conecta el ganado, el inventario, los clientes, las ventas y los
               pedidos en línea de tu organización. Menos planillas, más control para
               tomar mejores decisiones.
             </p>
@@ -429,7 +429,7 @@ onMounted(async () => {
               </h2>
               <p class="mt-3 text-sm leading-relaxed text-unal-secondary-light sm:text-base">
                 Desde fincas familiares hasta organizaciones con varios usuarios y
-                puntos de venta. SIVEP se adapta al tamaño de tu operación.
+                puntos de venta. SIVEP Agro se adapta al tamaño de tu operación.
               </p>
 
               <div class="mt-6 rounded-xl border border-unal-border bg-white p-5">
@@ -507,7 +507,7 @@ onMounted(async () => {
               <Database class="h-6 w-6 text-unal-primary" />
               <h3 class="mt-3 font-semibold text-unal-secondary">Licencia on-premise</h3>
               <p class="mt-1 text-sm text-unal-secondary-light">
-                Instala SIVEP en tus servidores, con mantenimiento, implementación en
+                Instala SIVEP Agro en tus servidores, con mantenimiento, implementación en
                 sitio y acompañamiento en la migración.
               </p>
             </article>
@@ -555,6 +555,27 @@ onMounted(async () => {
         </div>
       </section>
 
+      <!-- SIVEP Tech -->
+      <section class="border-t border-unal-border bg-white px-4 py-12 sm:px-6">
+        <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+          <div class="max-w-2xl">
+            <span class="badge-info">SIVEP Tech</span>
+            <h2 class="mt-3 text-2xl font-semibold text-unal-secondary">
+              ¿Necesitas una solución a la medida?
+            </h2>
+            <p class="mt-2 text-sm leading-relaxed text-unal-secondary-light">
+              SIVEP Tech desarrolla SIVEP Agro y también proyectos personalizados:
+              integraciones, módulos nuevos, instalación on-premise y acompañamiento
+              en la puesta en marcha.
+            </p>
+          </div>
+          <a href="mailto:contacto@sivep.tech" class="btn-primary">
+            Hablemos
+            <ArrowRight class="h-4 w-4" />
+          </a>
+        </div>
+      </section>
+
       <!-- CTA -->
       <section class="bg-unal-primary px-4 py-14 text-white sm:px-6">
         <div class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 text-center lg:flex-row lg:text-left">
@@ -586,13 +607,13 @@ onMounted(async () => {
             <div class="leading-tight">
               <span class="block text-lg font-bold text-unal-primary">SIVEP</span>
               <span class="block text-[10px] font-medium uppercase tracking-widest text-unal-secondary-light">
-                Gestión integral
+                Agro
               </span>
             </div>
           </div>
           <p class="mt-3 text-sm leading-relaxed text-unal-secondary-light">
             Plataforma multi-organización para la gestión ganadera, inventario,
-            ventas y pedidos en línea.
+            ventas y pedidos en línea. Un producto de SIVEP Tech.
           </p>
         </div>
 
@@ -622,7 +643,7 @@ onMounted(async () => {
               <MapPin class="h-4 w-4 text-unal-primary" /> Montería, Colombia
             </li>
             <li class="flex items-center gap-2">
-              <Mail class="h-4 w-4 text-unal-primary" /> contacto@sivep.local
+              <Mail class="h-4 w-4 text-unal-primary" /> contacto@sivep.tech
             </li>
             <li class="flex items-center gap-2">
               <Phone class="h-4 w-4 text-unal-primary" /> +57 300 123 4567
@@ -632,7 +653,7 @@ onMounted(async () => {
       </div>
 
       <div class="mx-auto mt-8 flex max-w-7xl flex-col items-center justify-between gap-2 border-t border-unal-border pt-6 text-xs text-unal-secondary-light sm:flex-row">
-        <p>© 2026 SIVEP · Universidad Nacional de Colombia — Sede Orinoquía</p>
+        <p>© 2026 SIVEP Tech · SIVEP Agro · Universidad Nacional de Colombia — Sede Orinoquía</p>
         <p>Hecho para organizaciones agropecuarias.</p>
       </div>
     </footer>

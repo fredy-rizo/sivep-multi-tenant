@@ -14,7 +14,7 @@ const auth = useAuthStore()
 const organization = useOrganizationStore()
 const plan = usePlanStore()
 
-const title = computed(() => route.meta.title ?? 'SIVEP')
+const title = computed(() => route.meta.title ?? 'SIVEP Agro')
 const description = computed(() => route.meta.description ?? '')
 
 const initials = computed(() =>

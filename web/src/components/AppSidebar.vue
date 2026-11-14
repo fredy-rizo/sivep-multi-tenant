@@ -106,7 +106,7 @@ async function handleLogout() {
         <div class="leading-tight">
           <span class="block text-lg font-bold text-unal-primary">SIVEP</span>
           <span class="block text-[10px] font-medium uppercase tracking-widest text-unal-secondary-light">
-            Gestión integral
+            Agro
           </span>
         </div>
       </RouterLink>
